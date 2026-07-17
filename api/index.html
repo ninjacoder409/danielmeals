@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Daniel — Meal Planner</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
+
+:root{
+  --bg:#F5F6F1; --panel:#FFFFFF; --ink:#1F2B22; --ink-soft:#5B6A5E; --line:#E3E1D6;
+  --brand:#234D35; --brand-soft:#E7EFE7;
+  --produce:#3F7D4F; --dairy:#4C7EA6; --meat:#B23A32; --pantry:#C99A3D; --warn:#A5650F; --warn-bg:#FBEEDD;
+  --radius:14px;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+.app{max-width:1200px;margin:0 auto;padding:16px 18px 90px;}
+
+/* header */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap;gap:12px;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-mark{width:34px;height:34px;border-radius:50%;background:conic-gradient(var(--produce) 0 90deg,var(--dairy) 90deg 180deg,var(--meat) 180deg 270deg,var(--pantry) 270deg 360deg);flex-shrink:0;}
+.brand-text h1{font-family:'Space Grotesk',sans-serif;font-size:18px;margin:0;font-weight:700;letter-spacing:-0.02em;}
+.brand-text p{margin:0;font-size:11.5px;color:var(--ink-soft);}
+.maintabs{display:flex;gap:4px;background:var(--bg);border-radius:10px;padding:3px;overflow-x:auto;max-width:100%;}
+.maintab{border:none;background:none;padding:8px 13px;font-family:'Inter',sans-serif;font-weight:600;font-size:12.5px;color:var(--ink-soft);border-radius:8px;cursor:pointer;white-space:nowrap;}
+.maintab.active{background:var(--panel);color:var(--brand);box-shadow:0 1px 2px rgba(0,0,0,.06);}
+
+/* main */
+.mainpanel{display:none;}
+.mainpanel.active{display:block;}
+.plan-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;margin:2px 4px 14px;}
+.plan-header .page-title{margin:0;}
+.plan-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.ghost-btn{border:1px solid var(--line);background:var(--panel);color:var(--brand);font-weight:600;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;}
+.ghost-btn:hover{background:var(--brand-soft);}
+.ghost-btn:disabled{opacity:.4;cursor:default;background:var(--panel);}
+.board,.tabcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;}
+
+/* plan grid */
+.board{overflow-x:auto;}
+.grid{display:grid;grid-template-columns:80px repeat(7,minmax(150px,1fr));gap:7px;min-width:900px;}
+.day-head{text-align:center;padding:6px 4px;}
+.day-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12.5px;}
+.slot-label{display:flex;align-items:center;font-size:11.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;padding:8px 4px;}
+.cell{position:relative;min-height:86px;background:var(--bg);border:1.5px dashed var(--line);border-radius:10px;padding:5px;display:flex;flex-direction:column;gap:5px;transition:background .15s,border-color .15s;cursor:pointer;}
+.cell:hover{border-color:var(--brand);}
+.cell.dragover{background:var(--brand-soft);border-color:var(--brand);}
+.combo-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:default;}
+.combo-row{padding:6px 7px;font-size:11.5px;line-height:1.3;position:relative;cursor:grab;}
+.combo-row:active{cursor:grabbing;}
+.combo-row + .combo-row{border-top:1px solid var(--line);}
+.mc-name{font-weight:600;padding-right:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mc-name a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--ink-soft);}
+.mc-name a:hover{color:var(--brand);}
+.mc-gf{color:var(--warn);margin-right:3px;cursor:help;font-size:11px;}
+.mc-remove{position:absolute;top:3px;right:4px;border:none;background:none;color:var(--ink-soft);cursor:pointer;font-size:13px;line-height:1;padding:2px;}
+.mc-remove:hover{color:var(--meat);}
+.mc-people{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:4px;}
+.mc-people button{width:16px;height:16px;flex:none;border-radius:4px;border:1px solid var(--line);background:var(--panel);font-size:10px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);}
+.mc-people button:hover{background:var(--brand-soft);color:var(--brand);}
+.mc-people span{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-soft);white-space:nowrap;}
+.recipe-picker{position:absolute;top:100%;left:0;z-index:30;background:var(--panel);border:1px solid var(--line);border-radius:9px;box-shadow:0 10px 24px rgba(0,0,0,.14);padding:6px;width:200px;max-height:220px;overflow-y:auto;margin-top:6px;cursor:default;}
+.rp-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:700;padding:4px 6px 6px;}
+.rp-item{display:block;width:100%;text-align:left;background:none;border:none;padding:7px 8px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink);}
+.rp-item:hover{background:var(--brand-soft);}
+.rp-empty{font-size:11.5px;color:var(--ink-soft);padding:6px;}
+
+/* stepper (shared) */
+.stepper{display:inline-flex;align-items:center;gap:7px;}
+.stepper button{width:26px;height:26px;flex:none;border-radius:6px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--ink);font-family:'Inter',sans-serif;}
+.stepper button:hover{background:var(--brand-soft);color:var(--brand);}
+.stepper-val{font-family:'IBM Plex Mono',monospace;font-size:11.5px;min-width:68px;text-align:center;}
+
+/* ingredients / shopping */
+.ing-section{margin-bottom:16px;}
+.ing-cat-title{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:8px;}
+.ing-row{display:grid;grid-template-columns:1.2fr 1fr 1.6fr auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
+.ing-name{font-weight:600;text-transform:capitalize;}
+.ing-needed{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);}
+.tri-btns{display:flex;gap:4px;flex-wrap:wrap;}
+.tri-btns button{border:1px solid var(--line);background:var(--bg);color:var(--ink-soft);font-size:11px;padding:5px 8px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;}
+.tri-btns button.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+.qty-toggle{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--ink-soft);cursor:pointer;justify-self:end;white-space:nowrap;}
+.qty-toggle input{accent-color:var(--brand);}
+.empty{color:var(--ink-soft);font-size:13px;padding:24px 4px;text-align:center;}
+.shop-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;font-size:13.5px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+.shop-row em{color:var(--ink-soft);font-style:normal;font-size:11.5px;}
+.copy-btn{margin-top:14px;border:1px solid var(--line);background:var(--bg);padding:8px 14px;border-radius:8px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* gluten tag */
+.gf-warn{margin-top:6px;font-size:10.5px;color:var(--warn);background:var(--warn-bg);padding:4px 7px;border-radius:6px;display:inline-block;}
+
+/* saved meals tab */
+.meals-layout{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;}
+.meals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
+.recipe-card{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 10px;cursor:grab;}
+.recipe-card:active{cursor:grabbing;}
+.rc-name{font-size:12.5px;font-weight:600;}
+.rc-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
+.rc-link{display:inline-block;margin-top:5px;font-size:11px;color:var(--brand);text-decoration:none;}
+.rc-link.muted{color:var(--ink-soft);}
+.add-recipe{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;}
+.ar-title{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--ink-soft);margin-bottom:8px;}
+.add-recipe input,.add-recipe textarea{width:100%;font-size:12px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:7px;padding:7px 9px;margin-bottom:7px;background:var(--bg);color:var(--ink);}
+.add-recipe textarea{min-height:56px;resize:vertical;}
+.ar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.photo-btn{border:1px solid var(--line);background:var(--bg);padding:7px 10px;border-radius:7px;font-size:12px;cursor:pointer;}
+.ar-photoname{font-size:11px;color:var(--ink-soft);}
+.add-recipe button{width:100%;border:none;background:var(--brand);color:#fff;padding:9px;border-radius:8px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+.add-recipe button:disabled{opacity:.5;}
+.ar-status{font-size:11.5px;margin-top:7px;color:var(--ink-soft);}
+@media(max-width:800px){ .meals-layout{grid-template-columns:1fr;} }
+
+/* floating chat widget */
+.chat-fab{position:fixed;bottom:22px;right:22px;width:56px;height:56px;border-radius:50%;background:var(--brand);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.22);z-index:90;display:flex;align-items:center;justify-content:center;}
+.chat-fab:hover{filter:brightness(1.08);}
+.chat-panel{position:fixed;bottom:88px;right:22px;width:368px;max-width:calc(100vw - 28px);height:540px;max-height:calc(100vh - 130px);background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.2);z-index:95;display:flex;flex-direction:column;overflow:hidden;}
+.chat-panel[hidden]{display:none;}
+.chat-panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.chat-panel-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;}
+.chat-panel-title .dot{width:8px;height:8px;border-radius:50%;background:var(--produce);display:inline-block;}
+.chat-mini-btn{border:1px solid var(--line);background:var(--bg);border-radius:6px;font-size:11px;padding:5px 9px;cursor:pointer;margin-left:6px;font-family:'Inter',sans-serif;}
+.chat-notes{padding:9px 12px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.chat-notes textarea{width:100%;min-height:38px;font-size:11px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:8px;padding:6px 8px;resize:vertical;color:var(--ink-soft);background:var(--bg);}
+.cn-label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+.cn-caveat{font-size:9.5px;color:var(--ink-soft);margin-top:4px;line-height:1.35;}
+.chat-log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.msg{max-width:88%;padding:8px 11px;border-radius:12px;font-size:12.5px;line-height:1.4;}
+.msg.daniel{background:var(--brand-soft);align-self:flex-start;border-bottom-left-radius:3px;}
+.msg.user{background:var(--brand);color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
+.msg.thinking{background:var(--brand-soft);align-self:flex-start;color:var(--ink-soft);font-style:italic;}
+.chat-input{display:flex;gap:6px;padding:9px;border-top:1px solid var(--line);align-items:flex-end;flex-shrink:0;}
+.chat-input textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:12.5px;min-height:36px;max-height:80px;}
+.chat-clip{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:0 9px;height:36px;cursor:pointer;font-size:14px;}
+.chat-input button.send{border:none;background:var(--brand);color:#fff;border-radius:9px;padding:0 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;height:36px;}
+.chat-input button.send:disabled{opacity:.5;}
+.chat-photo-tag{font-size:10.5px;color:var(--brand);padding:0 12px 8px;flex-shrink:0;}
+@media(max-width:520px){
+  .chat-panel{width:calc(100vw - 20px);right:10px;bottom:78px;height:min(72vh,560px);}
+  .chat-fab{right:14px;bottom:14px;}
+}
+
+/* onboarding quiz */
+.quiz-overlay{position:fixed;inset:0;background:rgba(20,30,22,.5);z-index:120;display:flex;align-items:center;justify-content:center;padding:16px;}
+.quiz-overlay[hidden]{display:none;}
+.quiz-modal{background:var(--panel);border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;padding:22px;}
+.quiz-modal h2{font-family:'Space Grotesk',sans-serif;font-size:19px;margin:0 0 4px;}
+.quiz-intro{font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;line-height:1.5;}
+.quiz-q{margin-bottom:16px;}
+.quiz-q-title{font-weight:600;font-size:13px;margin-bottom:7px;}
+.quiz-options{display:flex;flex-wrap:wrap;gap:7px;}
+.quiz-opt{border:1px solid var(--line);border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;background:var(--bg);font-family:'Inter',sans-serif;color:var(--ink);}
+.quiz-opt.selected{background:var(--brand);color:#fff;border-color:var(--brand);}
+.quiz-footer{display:flex;justify-content:space-between;align-items:center;margin-top:18px;position:sticky;bottom:-22px;background:var(--panel);padding:14px 0 4px;border-top:1px solid var(--line);}
+.quiz-footer .ghost-btn{background:var(--bg);}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping</p></div>
+    </div>
+    <div class="maintabs">
+      <button class="maintab active" data-main="plan">Plan</button>
+      <button class="maintab" data-main="ingredients">Ingredients</button>
+      <button class="maintab" data-main="shopping">Shopping List</button>
+      <button class="maintab" data-main="meals">Saved Meals</button>
+    </div>
+  </div>
+
+  <div class="mainpanel active" id="panel-plan">
+    <div class="plan-header">
+      <h2 class="page-title">Meal Planner</h2>
+      <div class="plan-actions">
+        <button class="ghost-btn" id="prepopulateBtn" disabled>Prepopulate from Prior Week</button>
+        <button class="ghost-btn" id="newWeekBtn">Start New Week</button>
+      </div>
+    </div>
+    <div class="board"><div class="grid" id="grid"></div></div>
+  </div>
+
+  <div class="mainpanel" id="panel-ingredients">
+    <h2 class="page-title">Ingredients</h2>
+    <div class="tabcard" id="ingredientsPanel"></div>
+  </div>
+
+  <div class="mainpanel" id="panel-shopping">
+    <h2 class="page-title">Shopping List</h2>
+    <div class="tabcard" id="shoppingPanel"></div>
+  </div>
+
+  <div class="mainpanel" id="panel-meals">
+    <h2 class="page-title">Saved Meals</h2>
+    <div class="meals-layout">
+      <div class="meals-grid" id="libList"></div>
+      <div class="add-recipe">
+        <div class="ar-title">Add a meal</div>
+        <input id="arName" placeholder="Name (optional)">
+        <input id="arLink" placeholder="Recipe URL (optional)">
+        <input id="arServings" type="number" min="1" placeholder="Servings (default 6)">
+        <textarea id="arText" placeholder="Paste ingredients here if you have them"></textarea>
+        <div class="ar-row">
+          <label class="photo-btn">📷 Add photo<input id="arPhoto" type="file" accept="image/*" style="display:none"></label>
+          <span class="ar-photoname" id="arPhotoName"></span>
+        </div>
+        <button id="arSubmit">Add to Saved Meals</button>
+        <div class="ar-status" id="arStatus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- floating chat widget -->
+<button class="chat-fab" id="chatFab" aria-label="Chat with Daniel">💬</button>
+<div class="chat-panel" id="chatPanel" hidden>
+  <div class="chat-panel-header">
+    <div class="chat-panel-title"><span class="dot"></span>Daniel</div>
+    <div>
+      <button class="chat-mini-btn" id="openProfileBtn">Profile</button>
+      <button class="chat-mini-btn" id="closeChatBtn">✕</button>
+    </div>
+  </div>
+  <div class="chat-notes">
+    <div class="cn-label">What Daniel knows about your household</div>
+    <textarea id="notesBox">We're a family of 6. One family member has celiac disease, so meals need to be gluten-free — no wheat, barley, rye, or cross-contaminated ingredients. Trying to cook more vegetables into dinners.</textarea>
+    <div class="cn-caveat">Gluten flags in the app are an automatic ingredient-keyword check, not a safety guarantee — always verify products and cross-contamination risk yourself.</div>
+  </div>
+  <div class="chat-log" id="chatLog"></div>
+  <div class="chat-photo-tag" id="chatPhotoTag" style="display:none;"></div>
+  <div class="chat-input">
+    <label class="chat-clip">📎<input id="chatPhoto" type="file" accept="image/*" style="display:none"></label>
+    <textarea id="chatInput" placeholder="Paste a recipe link, or ask Daniel to plan a meal..."></textarea>
+    <button class="send" id="sendBtn">Send</button>
+  </div>
+</div>
+
+<!-- onboarding quiz -->
+<div class="quiz-overlay" id="quizOverlay" hidden>
+  <div class="quiz-modal">
+    <h2>Tell Daniel about your household</h2>
+    <div class="quiz-intro">Quick multiple-choice questions to help Daniel suggest meals your family will actually eat. You can skip this or redo it anytime from the "Profile" button in the chat.</div>
+    <div id="quizBody"></div>
+    <div class="quiz-footer">
+      <button class="ghost-btn" id="quizSkipBtn">Skip for now</button>
+      <button class="ghost-btn" id="quizSaveBtn" style="background:var(--brand);color:#fff;border-color:var(--brand);">Save preferences</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= constants ================= */
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const SLOTS = ['breakfast','lunch','dinner','snack'];
+const SLOT_LABEL = {breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner',snack:'Snack'};
+const CAT_COLOR = {produce:'var(--produce)', dairy:'var(--dairy)', meat:'var(--meat)', pantry:'var(--pantry)'};
+const CAT_ORDER = ['produce','dairy','meat','pantry'];
+const DEFAULT_SERVINGS = 6;
+const UNIT_INFO = {
+  gal:{max:4, step:0.25, label:'gal'},
+  stick:{max:8, step:1, label:'stick(s)'},
+  cup:{max:12, step:0.5, label:'cup(s)'},
+  lb:{max:10, step:0.5, label:'lb'},
+  oz:{max:32, step:1, label:'oz'},
+  count:{max:12, step:1, label:'ct'},
+};
+const BUY_INCREMENT = {gal:1, stick:1, cup:1, lb:0.5, oz:1, count:1};
+
+const GLUTEN_PATTERNS = [
+  {re:/\bwheat\b/, label:'wheat'},
+  {re:/\bflour\b/, exceptRe:/(almond|rice|corn|coconut|chickpea|gluten.?free)/, label:'flour'},
+  {re:/\bpasta\b|\bspaghetti\b|\bmacaroni\b/, label:'pasta'},
+  {re:/\bnoodle/, label:'noodles (check for wheat)'},
+  {re:/\bbread\b|breadcrumb/, label:'bread'},
+  {re:/\bbarley\b/, label:'barley'},
+  {re:/\brye\b/, label:'rye'},
+  {re:/\bmalt\b/, label:'malt'},
+  {re:/\bcouscous\b/, label:'couscous'},
+  {re:/\bbulgur\b/, label:'bulgur'},
+  {re:/\bseitan\b/, label:'seitan'},
+  {re:/\bbeer\b/, label:'beer'},
+  {re:/soy sauce/, label:'soy sauce (check tamari/GF label)'},
+  {re:/\bcrouton/, label:'croutons'},
+  {re:/\bcracker/, label:'crackers'},
+  {re:/\bpretzel/, label:'pretzels'},
+  {re:/\btortilla\b/, label:'tortilla (check corn vs flour)'},
+  {re:/\boat/, label:'oats (check certified gluten-free)'},
+];
+function glutenFlags(recipe){
+  const hits = new Set();
+  (recipe.ingredients||[]).forEach(ing=>{
+    const n = (ing.name||'').toLowerCase();
+    GLUTEN_PATTERNS.forEach(p=>{
+      if(p.re.test(n) && !(p.exceptRe && p.exceptRe.test(n))) hits.add(p.label);
+    });
+  });
+  return Array.from(hits);
+}
+
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function fmt(n){ return (Math.round(n*100)/100).toString(); }
+function normalizeBuyQty(need, unit){
+  const inc = BUY_INCREMENT[unit] || 1;
+  if(need<=0) return 0;
+  return Math.ceil(need/inc)*inc;
+}
+function emptyPlan(){ return Object.fromEntries(DAYS.map(d=>[d, Object.fromEntries(SLOTS.map(s=>[s,[]]))])); }
+function snapshotPlan(plan){
+  const copy = {};
+  DAYS.forEach(d=>{ copy[d]={}; SLOTS.forEach(s=>{ copy[d][s] = plan[d][s].map(i=>({...i})); }); });
+  return copy;
+}
+function buildStepper(value, min, max, step, onChange, unitLabel){
+  const wrap=document.createElement('div'); wrap.className='stepper';
+  const dec=document.createElement('button'); dec.type='button'; dec.textContent='‹'; dec.setAttribute('aria-label','Decrease');
+  const inc=document.createElement('button'); inc.type='button'; inc.textContent='›'; inc.setAttribute('aria-label','Increase');
+  const val=document.createElement('span'); val.className='stepper-val';
+  function paint(){ val.textContent = `${fmt(value)} ${unitLabel}`; }
+  paint();
+  dec.addEventListener('click', ()=>{ value = Math.max(min, Math.round((value-step)*100)/100); paint(); onChange(value); });
+  inc.addEventListener('click', ()=>{ value = Math.min(max, Math.round((value+step)*100)/100); paint(); onChange(value); });
+  wrap.append(dec,val,inc);
+  return wrap;
+}
+
+/* ================= seed data ================= */
+const SEED_RECIPES = [
+  {id:uid(), name:'Baked Chicken Fajita Bowl', link:null, servings:6, ingredients:[
+    {name:'chicken breast', qty:2, unit:'lb', category:'meat'},
+    {name:'bell pepper', qty:4, unit:'count', category:'produce'},
+    {name:'onion', qty:2, unit:'count', category:'produce'},
+    {name:'rice', qty:2, unit:'cup', category:'pantry'},
+    {name:'shredded cheddar', qty:1.5, unit:'cup', category:'dairy'},
+    {name:'lime', qty:3, unit:'count', category:'produce'},
+    {name:'chili powder', qty:1.5, unit:'oz', category:'pantry'},
+    {name:'cumin', qty:0.75, unit:'oz', category:'pantry'},
+    {name:'olive oil', qty:3, unit:'oz', category:'pantry'},
+  ]},
+  {id:uid(), name:'Veggie Pasta Primavera', link:null, servings:6, ingredients:[
+    {name:'pasta', qty:18, unit:'oz', category:'pantry'},
+    {name:'zucchini', qty:3, unit:'count', category:'produce'},
+    {name:'cherry tomatoes', qty:3, unit:'cup', category:'produce'},
+    {name:'parmesan cheese', qty:0.75, unit:'cup', category:'dairy'},
+    {name:'butter', qty:1.5, unit:'stick', category:'dairy'},
+    {name:'garlic', qty:3, unit:'count', category:'produce'},
+    {name:'olive oil', qty:3, unit:'oz', category:'pantry'},
+    {name:'basil', qty:0.5, unit:'oz', category:'pantry'},
+  ]},
+  {id:uid(), name:'Greek Yogurt Parfait', link:null, servings:6, ingredients:[
+    {name:'greek yogurt', qty:6, unit:'cup', category:'dairy'},
+    {name:'granola', qty:3, unit:'cup', category:'pantry'},
+    {name:'mixed berries', qty:4.5, unit:'cup', category:'produce'},
+    {name:'honey', qty:2, unit:'oz', category:'pantry'},
+  ]},
+  {id:uid(), name:'Sausage & Peppers', link:null, servings:6, ingredients:[
+    {name:'sausage links', qty:2, unit:'lb', category:'meat'},
+    {name:'bell pepper', qty:3, unit:'count', category:'produce'},
+    {name:'onion', qty:2, unit:'count', category:'produce'},
+    {name:'olive oil', qty:2, unit:'oz', category:'pantry'},
+  ]},
+  {id:uid(), name:'Oatmeal with Berries', link:null, servings:6, ingredients:[
+    {name:'rolled oats', qty:3, unit:'cup', category:'pantry'},
+    {name:'milk', qty:0.1875, unit:'gal', category:'dairy'},
+    {name:'mixed berries', qty:3, unit:'cup', category:'produce'},
+    {name:'honey', qty:1.5, unit:'oz', category:'pantry'},
+  ]},
+];
+
+/* ================= quiz questions ================= */
+const QUIZ_QUESTIONS = [
+  {id:'q1', type:'multi', text:'Which cuisines does your household enjoy most?', options:['Italian','Mexican','Asian','American comfort food','Mediterranean','Indian']},
+  {id:'q2', type:'single', text:'What texture do you gravitate toward in a meal?', options:['Crunchy','Soft / tender','A mix of both',"Doesn't matter"]},
+  {id:'q3', type:'single', text:'How do you feel about spicy food?', options:['Love heat','Mild spice is fine','Prefer no spice','Varies by person']},
+  {id:'q4', type:'multi', text:'Which proteins do you eat most often?', options:['Chicken','Beef','Pork','Fish / seafood','Plant-based','Eggs']},
+  {id:'q5', type:'multi', text:'Any proteins your household avoids?', options:['None','Red meat','Pork','Shellfish','All meat','Dairy']},
+  {id:'q6', type:'single', text:'How much time do you typically have to cook on a weeknight?', options:['Under 20 min','20–40 min','40–60 min',"Not a constraint"]},
+  {id:'q7', type:'single', text:'Do you prefer trying new recipes or repeating favorites?', options:['Mostly new','A mix of both','Mostly favorites']},
+  {id:'q8', type:'single', text:'How many people are you typically cooking for?', options:['2','3–4','5–6','7+']},
+  {id:'q9', type:'multi', text:'Any known food allergies or intolerances?', options:['None','Gluten / celiac','Dairy / lactose','Nuts','Shellfish','Eggs','Soy']},
+  {id:'q10', type:'single', text:'How do you feel about leftovers?', options:['Love repurposing them','Prefer fresh each time','A mix of both']},
+  {id:'q11', type:'multi', text:'Which vegetables does your household enjoy?', options:['Leafy greens','Root vegetables','Peppers / onions','Squash','Broccoli / cauliflower','Not a big veggie household']},
+  {id:'q12', type:'multi', text:'Any vegetables you tend to avoid?', options:['None','Mushrooms','Eggplant','Brussels sprouts','Okra','Peas']},
+  {id:'q13', type:'single', text:"What's your go-to breakfast style?", options:['Sweet','Savory','Quick / grab-and-go','Big weekend breakfast']},
+  {id:'q14', type:'single', text:'How adventurous is your household with new cuisines?', options:['Very adventurous','Somewhat','Prefer familiar meals']},
+  {id:'q15', type:'multi', text:'Preferred grain or starch base?', options:['Rice','Pasta','Potatoes','Bread','Quinoa / other grains']},
+  {id:'q16', type:'single', text:'How important is a meal being kid-friendly?', options:['Very important','Somewhat','Not a factor']},
+  {id:'q17', type:'single', text:'Cheese / dairy preference in meals?', options:['Love cheesy dishes','Light dairy','Dairy-free preferred','No preference']},
+  {id:'q18', type:'single', text:'How do you feel about one-pot or sheet-pan meals?', options:['Love them','Prefer separate components','No preference']},
+  {id:'q19', type:'single', text:'Sweet-savory combinations (like a glaze or sauce)?', options:['Love it','Prefer savory only','Depends on the dish']},
+  {id:'q20', type:'single', text:'What kind of snacks does your household reach for?', options:['Salty / crunchy','Sweet','Fresh fruit or veg','Not big snackers']},
+];
+
+/* ================= state ================= */
+const state = {
+  recipes: SEED_RECIPES,
+  plan: emptyPlan(),
+  priorWeek: null,
+  stock: {},
+  shopBuyQty: {},
+  quizAnswers: {},
+  profileSummary: '',
+};
+state.plan['Mon'].breakfast.push({instanceId:uid(), recipeId:SEED_RECIPES[4].id, people:DEFAULT_SERVINGS});
+state.plan['Mon'].breakfast.push({instanceId:uid(), recipeId:SEED_RECIPES[3].id, people:DEFAULT_SERVINGS});
+state.plan['Mon'].dinner.push({instanceId:uid(), recipeId:SEED_RECIPES[0].id, people:DEFAULT_SERVINGS});
+
+/* ================= helpers ================= */
+function stockKey(name, unit){ return name.toLowerCase().trim()+'|'+unit; }
+function ensureStock(key){
+  if(!(key in state.stock)) state.stock[key] = {mode:'status', status:'in', have:0};
+  return state.stock[key];
+}
+function computeWeeklyNeeds(){
+  const needs = {};
+  DAYS.forEach(day=> SLOTS.forEach(slot=>{
+    state.plan[day][slot].forEach(inst=>{
+      const recipe = state.recipes.find(r=>r.id===inst.recipeId);
+      if(!recipe) return;
+      const factor = inst.people / (recipe.servings||DEFAULT_SERVINGS);
+      recipe.ingredients.forEach(ing=>{
+        const key = stockKey(ing.name, ing.unit);
+        if(!needs[key]) needs[key] = {name:ing.name, unit:ing.unit, category:ing.category, needed:0};
+        needs[key].needed += ing.qty*factor;
+      });
+    });
+  }));
+  return needs;
+}
+
+/* ================= render: plan grid ================= */
+function closeAllPickers(){ document.querySelectorAll('.recipe-picker').forEach(p=>p.hidden=true); }
+document.addEventListener('click', closeAllPickers);
+
+function renderGrid(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML='';
+  grid.appendChild(Object.assign(document.createElement('div'),{className:'corner'}));
+  DAYS.forEach(day=>{
+    const head=document.createElement('div'); head.className='day-head';
+    head.innerHTML = `<div class="day-name">${day}</div>`;
+    grid.appendChild(head);
+  });
+  SLOTS.forEach(slot=>{
+    const label=document.createElement('div'); label.className='slot-label'; label.textContent=SLOT_LABEL[slot];
+    grid.appendChild(label);
+    DAYS.forEach(day=>{
+      const cell=document.createElement('div'); cell.className='cell'; cell.dataset.day=day; cell.dataset.slot=slot;
+
+      if(state.plan[day][slot].length){
+        const combo=document.createElement('div'); combo.className='combo-card';
+        combo.addEventListener('click', e=> e.stopPropagation());
+        state.plan[day][slot].forEach(inst=>{
+          const recipe = state.recipes.find(r=>r.id===inst.recipeId);
+          if(!recipe) return;
+          const row=document.createElement('div'); row.className='combo-row'; row.draggable=true;
+          row.addEventListener('dragstart', e=>{
+            e.dataTransfer.setData('text/plain', JSON.stringify({moveInstanceId:inst.instanceId, fromDay:day, fromSlot:slot}));
+          });
+          const flags = glutenFlags(recipe);
+          const nameDiv=document.createElement('div'); nameDiv.className='mc-name';
+          nameDiv.innerHTML = (flags.length ? `<span class="mc-gf" title="May contain gluten: ${flags.join(', ')}">⚠</span>` : '') +
+            (recipe.link ? `<a href="${recipe.link}" target="_blank" rel="noopener">${recipe.name}</a>` : recipe.name);
+          const removeBtn=document.createElement('button'); removeBtn.className='mc-remove'; removeBtn.textContent='×'; removeBtn.title='Remove';
+          removeBtn.addEventListener('click', ()=>{
+            state.plan[day][slot] = state.plan[day][slot].filter(i=>i.instanceId!==inst.instanceId);
+            renderAll();
+          });
+          const peopleWrap=document.createElement('div'); peopleWrap.className='mc-people';
+          const dec=document.createElement('button'); dec.type='button'; dec.textContent='‹';
+          const val=document.createElement('span'); val.textContent=`Serves ${inst.people}`;
+          const inc=document.createElement('button'); inc.type='button'; inc.textContent='›';
+          dec.addEventListener('click', ()=>{ if(inst.people>1){ inst.people--; val.textContent=`Serves ${inst.people}`; renderIngredients(); renderShopping(); } });
+          inc.addEventListener('click', ()=>{ if(inst.people<12){ inst.people++; val.textContent=`Serves ${inst.people}`; renderIngredients(); renderShopping(); } });
+          peopleWrap.append(dec,val,inc);
+          row.append(removeBtn, nameDiv, peopleWrap);
+          combo.appendChild(row);
+        });
+        cell.appendChild(combo);
+      }
+
+      const picker=document.createElement('div'); picker.className='recipe-picker'; picker.hidden=true;
+      picker.innerHTML = `<div class="rp-title">${SLOT_LABEL[slot]} · ${day}</div>` +
+        (state.recipes.length ? state.recipes.map(r=>`<button type="button" class="rp-item" data-recipe="${r.id}">${r.name}</button>`).join('')
+                               : `<div class="rp-empty">No saved meals yet — add one from Saved Meals.</div>`);
+      picker.addEventListener('click', e=> e.stopPropagation());
+      picker.querySelectorAll('.rp-item').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const recipe = state.recipes.find(r=>r.id===btn.dataset.recipe);
+          if(recipe){ state.plan[day][slot].push({instanceId:uid(), recipeId:recipe.id, people:recipe.servings||DEFAULT_SERVINGS}); renderAll(); }
+        });
+      });
+      cell.appendChild(picker);
+
+      cell.addEventListener('click', e=>{
+        e.stopPropagation();
+        const wasHidden = picker.hidden;
+        closeAllPickers();
+        picker.hidden = !wasHidden;
+      });
+
+      cell.addEventListener('dragover', e=>{ e.preventDefault(); cell.classList.add('dragover'); });
+      cell.addEventListener('dragleave', ()=> cell.classList.remove('dragover'));
+      cell.addEventListener('drop', e=>{
+        e.preventDefault(); cell.classList.remove('dragover');
+        try{
+          const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+          if(data.moveInstanceId){
+            const origin = state.plan[data.fromDay][data.fromSlot];
+            const idx = origin.findIndex(i=>i.instanceId===data.moveInstanceId);
+            if(idx>-1){
+              const [moved] = origin.splice(idx,1);
+              state.plan[day][slot].push(moved);
+              renderAll();
+            }
+          } else if(data.recipeId){
+            const recipe = state.recipes.find(r=>r.id===data.recipeId);
+            if(recipe){ state.plan[day][slot].push({instanceId:uid(), recipeId:recipe.id, people:recipe.servings||DEFAULT_SERVINGS}); renderAll(); }
+          }
+        }catch(err){}
+      });
+
+      grid.appendChild(cell);
+    });
+  });
+}
+
+/* ================= render: ingredients ================= */
+function renderIngredients(){
+  const needs = computeWeeklyNeeds();
+  const el = document.getElementById('ingredientsPanel');
+  el.innerHTML='';
+  if(!Object.keys(needs).length){ el.innerHTML = '<div class="empty">Add meals to your Plan to see ingredients here.</div>'; return; }
+  CAT_ORDER.forEach(cat=>{
+    const items = Object.entries(needs).filter(([k,v])=>v.category===cat);
+    if(!items.length) return;
+    const section=document.createElement('div'); section.className='ing-section';
+    section.innerHTML = `<div class="ing-cat-title" style="color:${CAT_COLOR[cat]}">${cat}</div>`;
+    items.forEach(([key,v])=>{
+      const stock = ensureStock(key);
+      const info = UNIT_INFO[v.unit];
+      const row=document.createElement('div'); row.className='ing-row';
+      const nameDiv=document.createElement('div'); nameDiv.className='ing-name'; nameDiv.textContent=v.name;
+      const neededDiv=document.createElement('div'); neededDiv.className='ing-needed'; neededDiv.textContent=`${fmt(v.needed)} ${info.label} needed`;
+      const controlDiv=document.createElement('div');
+      const toggleLabel=document.createElement('label'); toggleLabel.className='qty-toggle';
+      const toggleInput=document.createElement('input'); toggleInput.type='checkbox'; toggleInput.checked = stock.mode==='quantity';
+      const toggleSpan=document.createElement('span'); toggleSpan.textContent='Quantify';
+      toggleLabel.append(toggleInput, toggleSpan);
+      function paintControl(){
+        controlDiv.innerHTML='';
+        if(stock.mode==='status'){
+          const wrap=document.createElement('div'); wrap.className='tri-btns';
+          [['in','In stock'],['low','Running low'],['out','Out']].forEach(([v2,text])=>{
+            const b=document.createElement('button'); b.type='button'; b.textContent=text;
+            if(stock.status===v2) b.classList.add('active');
+            b.addEventListener('click', ()=>{ stock.status=v2; paintControl(); renderShopping(); });
+            wrap.appendChild(b);
+          });
+          controlDiv.appendChild(wrap);
+        } else {
+          controlDiv.appendChild(buildStepper(stock.have, 0, info.max, info.step, v2=>{ stock.have=v2; renderShopping(); }, info.label));
+        }
+      }
+      paintControl();
+      toggleInput.addEventListener('change', e=>{ stock.mode = e.target.checked ? 'quantity' : 'status'; paintControl(); renderShopping(); });
+      row.append(nameDiv, neededDiv, controlDiv, toggleLabel);
+      section.appendChild(row);
+    });
+    el.appendChild(section);
+  });
+}
+
+/* ================= render: shopping list ================= */
+function renderShopping(){
+  const needs = computeWeeklyNeeds();
+  const el = document.getElementById('shoppingPanel');
+  const rows = [];
+  Object.entries(needs).forEach(([key,v])=>{
+    const stock = ensureStock(key);
+    let base = 0, tag = null;
+    if(stock.mode==='quantity'){
+      base = normalizeBuyQty(Math.max(0, v.needed - stock.have), v.unit);
+    } else {
+      if(stock.status==='in') return;
+      base = normalizeBuyQty(v.needed, v.unit);
+      tag = stock.status==='low' ? 'running low' : 'out';
+    }
+    if(base<=0) return;
+    if(state.shopBuyQty[key]===undefined) state.shopBuyQty[key] = base;
+    rows.push({key, name:v.name, category:v.category, unit:v.unit, tag});
+  });
+  el.innerHTML='';
+  if(!rows.length){ el.innerHTML = '<div class="empty">Nothing needed — your stock covers this week\'s plan.</div>'; return; }
+  CAT_ORDER.forEach(cat=>{
+    const items = rows.filter(r=>r.category===cat);
+    if(!items.length) return;
+    const section=document.createElement('div'); section.className='ing-section';
+    section.innerHTML = `<div class="ing-cat-title" style="color:${CAT_COLOR[cat]}">${cat}</div>`;
+    items.forEach(it=>{
+      const row=document.createElement('div'); row.className='shop-row';
+      const left=document.createElement('label'); left.style.display='flex'; left.style.alignItems='center'; left.style.gap='8px';
+      const cb=document.createElement('input'); cb.type='checkbox';
+      const nameSpan=document.createElement('span'); nameSpan.innerHTML = `${it.name}${it.tag ? ` <em>(${it.tag})</em>` : ''}`;
+      left.append(cb, nameSpan);
+      const inc = BUY_INCREMENT[it.unit];
+      const stepper = buildStepper(state.shopBuyQty[it.key], 0, inc*20, inc, v=>{ state.shopBuyQty[it.key]=v; }, UNIT_INFO[it.unit].label);
+      row.append(left, stepper);
+      section.appendChild(row);
+    });
+    el.appendChild(section);
+  });
+  const copyBtn=document.createElement('button'); copyBtn.className='copy-btn'; copyBtn.textContent='Copy list';
+  copyBtn.onclick = ()=>{
+    const text = rows.map(r=>`${r.name} — ${fmt(state.shopBuyQty[r.key])} ${UNIT_INFO[r.unit].label}`).join('\n');
+    navigator.clipboard?.writeText(text).catch(()=>{});
+  };
+  el.appendChild(copyBtn);
+}
+
+/* ================= render: saved meals ================= */
+function renderSavedRecipes(){
+  const el = document.getElementById('libList');
+  el.innerHTML='';
+  state.recipes.forEach(r=>{
+    const flags = glutenFlags(r);
+    const card=document.createElement('div'); card.className='recipe-card'; card.draggable=true; card.dataset.recipeId=r.id;
+    card.innerHTML = `
+      <div class="rc-name">${r.name}</div>
+      <div class="rc-meta">Serves ${r.servings} · ${r.ingredients.length} ingredients</div>
+      ${r.link ? `<a class="rc-link" href="${r.link}" target="_blank" rel="noopener">View recipe ↗</a>` : `<span class="rc-link muted">No source link</span>`}
+      ${flags.length ? `<div class="gf-warn">⚠ May contain gluten: ${flags.join(', ')}</div>` : ''}`;
+    card.addEventListener('dragstart', e=> e.dataTransfer.setData('text/plain', JSON.stringify({recipeId:r.id})));
+    el.appendChild(card);
+  });
+}
+
+function renderAll(){ renderGrid(); renderIngredients(); renderShopping(); renderSavedRecipes(); updateWeekButtons(); }
+function updateWeekButtons(){ document.getElementById('prepopulateBtn').disabled = !state.priorWeek; }
+
+/* ================= new week / prepopulate ================= */
+document.getElementById('newWeekBtn').addEventListener('click', ()=>{
+  const hasMeals = DAYS.some(d=>SLOTS.some(s=>state.plan[d][s].length));
+  if(hasMeals) state.priorWeek = snapshotPlan(state.plan);
+  state.plan = emptyPlan();
+  renderAll();
+});
+document.getElementById('prepopulateBtn').addEventListener('click', ()=>{
+  if(!state.priorWeek) return;
+  const copy = snapshotPlan(state.priorWeek);
+  DAYS.forEach(d=> SLOTS.forEach(s=> copy[d][s].forEach(i=> i.instanceId = uid())));
+  state.plan = copy;
+  renderAll();
+});
+
+renderAll();
+
+/* ================= tab switching ================= */
+document.querySelectorAll('.maintab').forEach(t=> t.addEventListener('click', ()=>{
+  document.querySelectorAll('.maintab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.mainpanel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('panel-'+t.dataset.main).classList.add('active');
+}));
+
+/* ================= recipe ingestion (link / paste / photo) ================= */
+async function ingestRecipe({name, link, servingsHint, rawText, imageBase64}){
+  let fetchedText = null, fetchNote = '';
+  if(link){
+    try{
+      const res = await fetch(link);
+      if(res.ok){
+        const html = await res.text();
+        fetchedText = html.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').slice(0,8000);
+      } else { fetchNote = `The page responded with an error (status ${res.status}).`; }
+    }catch(e){ fetchNote = 'Could not automatically retrieve that page — many recipe sites block automated requests.'; }
+  }
+
+  let promptText = `Extract a structured recipe from the information below. Respond with ONLY JSON, no markdown fences.
+Schema: {"name": string, "link": string|null, "servings": number, "ingredients":[{"name":string,"qty":number,"unit":"gal"|"stick"|"cup"|"lb"|"oz"|"count","category":"produce"|"dairy"|"meat"|"pantry"}], "error": string|null}
+Rules:
+- For every ingredient, choose whichever of the six units (gal, stick, cup, lb, oz, count) is most practical for how that ingredient is actually measured and tracked, even if that means converting from how the source recipe wrote it. Examples: milk → gal, butter → stick, flour/rice/dry goods → cup or oz, meat → lb, produce/eggs → count, spices/oils/condiments → oz.
+- IMPORTANT: convert the recipe's stated amount into that practical unit (e.g. "1 cup milk" becomes qty 0.0625, unit "gal").
+- category is for grouping only: produce, dairy, meat, or pantry.
+- If there isn't enough real information here to extract actual ingredients, set "error" to a short plain-language explanation and leave ingredients as an empty array. Do not invent a recipe you don't have real information for.
+
+Name hint: ${name || '(not given, infer from content)'}
+Link: ${link || '(none)'}
+Servings hint: ${servingsHint || '(not given, infer or default to 6)'}
+`;
+  if(fetchedText) promptText += `\nPage text (may be noisy):\n${fetchedText}`;
+  else if(link) promptText += `\n${fetchNote}`;
+  if(rawText) promptText += `\nUser-provided text:\n${rawText}`;
+
+  const content = [{type:'text', text: promptText}];
+  if(imageBase64) content.push({type:'image', source:{type:'base64', media_type:'image/jpeg', data: imageBase64}});
+
+  const response = await fetch("/api/daniel", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1000, messages:[{role:"user", content}] })
+  });
+  const data = await response.json();
+  const text = (data.content||[]).map(c=>c.text||'').join('').trim();
+  const clean = text.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+/* ---- add-meal form ---- */
+let arPhotoBase64 = null;
+document.getElementById('arPhoto').addEventListener('change', e=>{
+  const file = e.target.files[0]; if(!file) return;
+  document.getElementById('arPhotoName').textContent = file.name;
+  const reader = new FileReader();
+  reader.onload = ()=>{ arPhotoBase64 = reader.result.split(',')[1]; };
+  reader.readAsDataURL(file);
+});
+document.getElementById('arSubmit').addEventListener('click', async ()=>{
+  const btn = document.getElementById('arSubmit');
+  const status = document.getElementById('arStatus');
+  const name = document.getElementById('arName').value.trim();
+  const link = document.getElementById('arLink').value.trim();
+  const servings = document.getElementById('arServings').value.trim();
+  const text = document.getElementById('arText').value.trim();
+  if(!name && !link && !text && !arPhotoBase64){ status.textContent = 'Add a link, some pasted ingredients, or a photo first.'; return; }
+  btn.disabled = true; status.textContent = 'Reading recipe…';
+  try{
+    const parsed = await ingestRecipe({name, link, servingsHint:servings, rawText:text, imageBase64:arPhotoBase64});
+    if(parsed.error){ status.textContent = parsed.error; }
+    else{
+      state.recipes.push({id:uid(), name:parsed.name||name||'Untitled meal', link:parsed.link||link||null, servings:parsed.servings||parseInt(servings)||DEFAULT_SERVINGS, ingredients:parsed.ingredients||[]});
+      renderSavedRecipes(); renderGrid();
+      status.textContent = `Added "${parsed.name||name}" (${(parsed.ingredients||[]).length} ingredients).`;
+      document.getElementById('arName').value=''; document.getElementById('arLink').value='';
+      document.getElementById('arServings').value=''; document.getElementById('arText').value='';
+      document.getElementById('arPhotoName').textContent=''; arPhotoBase64=null;
+    }
+  }catch(err){ status.textContent = 'Something went wrong reading that — try again?'; console.error(err); }
+  finally{ btn.disabled=false; }
+});
+
+/* ================= chat widget ================= */
+const chatFab = document.getElementById('chatFab');
+const chatPanel = document.getElementById('chatPanel');
+chatFab.addEventListener('click', ()=>{ chatPanel.hidden = false; });
+document.getElementById('closeChatBtn').addEventListener('click', ()=>{ chatPanel.hidden = true; });
+document.getElementById('openProfileBtn').addEventListener('click', ()=>{ openQuiz(); });
+
+const chatLog = document.getElementById('chatLog');
+const chatInput = document.getElementById('chatInput');
+const sendBtn = document.getElementById('sendBtn');
+const notesBox = document.getElementById('notesBox');
+const chatPhotoTag = document.getElementById('chatPhotoTag');
+let chatPendingImage = null;
+
+document.getElementById('chatPhoto').addEventListener('change', e=>{
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    chatPendingImage = reader.result.split(',')[1];
+    chatPhotoTag.style.display='block';
+    chatPhotoTag.textContent = `📎 ${file.name} attached — say "add this to my saved meals"`;
+  };
+  reader.readAsDataURL(file);
+});
+function clearChatPhoto(){ chatPendingImage=null; chatPhotoTag.style.display='none'; document.getElementById('chatPhoto').value=''; }
+
+function addMsg(text, cls){
+  const div=document.createElement('div'); div.className='msg '+cls; div.textContent=text;
+  chatLog.appendChild(div); chatLog.scrollTop = chatLog.scrollHeight; return div;
+}
+addMsg("Hi, I'm Daniel. Tap the icon anytime to reach me. Paste a recipe link or attach a photo and say \"add this to my saved meals,\" or ask me to plan something — like \"add sausage and peppers to Wednesday dinner.\"", 'daniel');
+
+async function sendToDaniel(userText){
+  const planLines = DAYS.map(day => `${day} — ` + SLOTS.map(slot=>{
+    const items = state.plan[day][slot].map(i=>{
+      const r = state.recipes.find(x=>x.id===i.recipeId);
+      return r ? `${r.name} [id:${i.instanceId}] (serves ${i.people})` : '';
+    }).filter(Boolean).join(', ') || '(empty)';
+    return `${slot}: ${items}`;
+  }).join(' | ')).join('\n');
+
+  const mealsList = state.recipes.map(r=>{
+    const flags = glutenFlags(r);
+    return `${r.id}: ${r.name} (serves ${r.servings})${flags.length ? ` [may contain gluten: ${flags.join(', ')}]` : ' [no gluten flags detected]'}`;
+  }).join('\n') || '(none saved yet)';
+
+  const system = `You are Daniel, a meal-planning assistant embedded in an app.
+Saved meals:
+${mealsList}
+
+Household notes: ${notesBox.value}
+
+Household profile (from onboarding quiz): ${state.profileSummary || '(quiz not completed yet)'}
+
+Current week plan (each entry shows its instance id so you can remove it precisely):
+${planLines}
+
+Respond ONLY with JSON, no markdown fences: {"reply":"short friendly message, 2-4 sentences max","actions":[{"type":"add_meal","day":"Mon","slot":"dinner","recipeId":"<id>","people":6},{"type":"remove_meal","day":"Mon","slot":"dinner","instanceId":"<id>"}]}
+Rules: day must be one of Mon,Tue,Wed,Thu,Fri,Sat,Sun. slot must be one of breakfast,lunch,dinner,snack. Only use recipeId values from the saved meals list — never invent a meal. If household notes or profile mention a gluten restriction (e.g. celiac), do not add_meal a meal flagged with a gluten warning unless the user explicitly asks for it anyway — mention the concern in your reply instead. For remove_meal, use the exact instanceId shown above. Empty actions array if you're just answering a question.`;
+
+  const thinking = addMsg('Daniel is thinking…', 'thinking');
+  sendBtn.disabled = true;
+  try{
+    const response = await fetch("/api/daniel", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1000, system, messages:[{role:"user", content:userText}] })
+    });
+    const data = await response.json();
+    const text = (data.content||[]).map(c=>c.text||'').join('').trim();
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    thinking.remove();
+    addMsg(parsed.reply || 'Done.', 'daniel');
+    (parsed.actions||[]).forEach(a=>{
+      if(a.type==='add_meal' && DAYS.includes(a.day) && SLOTS.includes(a.slot) && state.recipes.find(r=>r.id===a.recipeId)){
+        const r = state.recipes.find(r=>r.id===a.recipeId);
+        state.plan[a.day][a.slot].push({instanceId:uid(), recipeId:a.recipeId, people:a.people||r.servings||DEFAULT_SERVINGS});
+      } else if(a.type==='remove_meal' && DAYS.includes(a.day) && SLOTS.includes(a.slot)){
+        state.plan[a.day][a.slot] = state.plan[a.day][a.slot].filter(i=>i.instanceId!==a.instanceId);
+      }
+    });
+    renderAll();
+  }catch(err){
+    thinking.remove();
+    addMsg("I had trouble with that just now — could you try again?", 'daniel');
+    console.error(err);
+  }finally{ sendBtn.disabled=false; }
+}
+
+sendBtn.addEventListener('click', async ()=>{
+  const text = chatInput.value.trim();
+  if(!text && !chatPendingImage) return;
+  addMsg(text || '(photo attached)', 'user');
+  const urlMatch = text.match(/https?:\/\/[^\s]+/i);
+  const imageToSend = chatPendingImage;
+  chatInput.value=''; clearChatPhoto();
+
+  if(urlMatch || imageToSend){
+    const thinking = addMsg('Daniel is reading that recipe…', 'thinking');
+    try{
+      const parsed = await ingestRecipe({link: urlMatch ? urlMatch[0] : null, rawText:text, imageBase64:imageToSend});
+      thinking.remove();
+      if(parsed.error){
+        addMsg(`I couldn't get a full recipe from that: ${parsed.error} Want to paste the ingredients, or send a clearer photo?`, 'daniel');
+      } else {
+        state.recipes.push({id:uid(), name:parsed.name||'Untitled meal', link:parsed.link||(urlMatch?urlMatch[0]:null), servings:parsed.servings||DEFAULT_SERVINGS, ingredients:parsed.ingredients||[]});
+        renderSavedRecipes(); renderGrid();
+        addMsg(`Added "${parsed.name}" to your Saved Meals — serves ${parsed.servings||DEFAULT_SERVINGS}, ${(parsed.ingredients||[]).length} ingredients.`, 'daniel');
+      }
+    }catch(err){
+      thinking.remove();
+      addMsg("Something went wrong reading that recipe — mind trying again, or pasting the ingredients directly?", 'daniel');
+      console.error(err);
+    }
+    return;
+  }
+  sendToDaniel(text);
+});
+chatInput.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
+});
+
+/* ================= onboarding quiz ================= */
+const quizOverlay = document.getElementById('quizOverlay');
+function renderQuiz(){
+  const body = document.getElementById('quizBody');
+  body.innerHTML = '';
+  QUIZ_QUESTIONS.forEach(q=>{
+    const wrap=document.createElement('div'); wrap.className='quiz-q';
+    const title=document.createElement('div'); title.className='quiz-q-title'; title.textContent=q.text;
+    const opts=document.createElement('div'); opts.className='quiz-options';
+    const current = state.quizAnswers[q.id];
+    q.options.forEach(opt=>{
+      const btn=document.createElement('button'); btn.type='button'; btn.className='quiz-opt'; btn.textContent=opt;
+      const isSelected = q.type==='multi' ? (Array.isArray(current)&&current.includes(opt)) : current===opt;
+      if(isSelected) btn.classList.add('selected');
+      btn.addEventListener('click', ()=>{
+        if(q.type==='multi'){
+          let arr = Array.isArray(state.quizAnswers[q.id]) ? [...state.quizAnswers[q.id]] : [];
+          if(arr.includes(opt)) arr = arr.filter(o=>o!==opt); else arr.push(opt);
+          state.quizAnswers[q.id]=arr;
+        } else {
+          state.quizAnswers[q.id]=opt;
+        }
+        renderQuiz();
+      });
+      opts.appendChild(btn);
+    });
+    wrap.append(title, opts);
+    body.appendChild(wrap);
+  });
+}
+function openQuiz(){ renderQuiz(); quizOverlay.hidden = false; }
+function closeQuiz(){ quizOverlay.hidden = true; }
+function buildProfileSummary(){
+  return QUIZ_QUESTIONS.map(q=>{
+    const a = state.quizAnswers[q.id];
+    if(!a || (Array.isArray(a) && !a.length)) return null;
+    const val = Array.isArray(a) ? a.join(', ') : a;
+    return `${q.text} → ${val}`;
+  }).filter(Boolean).join('\n');
+}
+document.getElementById('quizSkipBtn').addEventListener('click', closeQuiz);
+document.getElementById('quizSaveBtn').addEventListener('click', ()=>{
+  state.profileSummary = buildProfileSummary();
+  closeQuiz();
+  addMsg("Thanks — I've saved your preferences and will factor them into meal suggestions.", 'daniel');
+  chatPanel.hidden = false;
+});
+
+/* show onboarding quiz on load (no persistence yet — this will reappear each visit until v2's backend) */
+openQuiz();
+</script>
+</body>
+</html>
