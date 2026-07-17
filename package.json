@@ -1,0 +1,6 @@
+{
+  "name": "daniel-meal-planner",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Daniel — a meal planner with an AI assistant, deployed as a static site with one serverless proxy function."
+}
