@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Daniel — Meal Planner</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap');
@@ -9,57 +10,59 @@
 :root{
   --bg:#F5F6F1; --panel:#FFFFFF; --ink:#1F2B22; --ink-soft:#5B6A5E; --line:#E3E1D6;
   --brand:#234D35; --brand-soft:#E7EFE7;
-  --produce:#3F7D4F; --dairy:#4C7EA6; --meat:#B23A32; --pantry:#C99A3D;
+  --produce:#3F7D4F; --dairy:#4C7EA6; --meat:#B23A32; --pantry:#C99A3D; --warn:#A5650F; --warn-bg:#FBEEDD;
   --radius:14px;
 }
 *{box-sizing:border-box;}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
-.app{max-width:1440px;margin:0 auto;padding:20px 24px 60px;}
+.app{max-width:1200px;margin:0 auto;padding:16px 18px 90px;}
 
 /* header */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap;gap:14px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap;gap:12px;}
 .brand{display:flex;align-items:center;gap:10px;}
-.brand-mark{width:36px;height:36px;border-radius:50%;background:conic-gradient(var(--produce) 0 90deg,var(--dairy) 90deg 180deg,var(--meat) 180deg 270deg,var(--pantry) 270deg 360deg);flex-shrink:0;}
-.brand-text h1{font-family:'Space Grotesk',sans-serif;font-size:19px;margin:0;font-weight:700;letter-spacing:-0.02em;}
-.brand-text p{margin:0;font-size:12px;color:var(--ink-soft);}
-.maintabs{display:flex;gap:4px;background:var(--bg);border-radius:10px;padding:3px;}
-.maintab{border:none;background:none;padding:9px 16px;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;color:var(--ink-soft);border-radius:8px;cursor:pointer;}
+.brand-mark{width:34px;height:34px;border-radius:50%;background:conic-gradient(var(--produce) 0 90deg,var(--dairy) 90deg 180deg,var(--meat) 180deg 270deg,var(--pantry) 270deg 360deg);flex-shrink:0;}
+.brand-text h1{font-family:'Space Grotesk',sans-serif;font-size:18px;margin:0;font-weight:700;letter-spacing:-0.02em;}
+.brand-text p{margin:0;font-size:11.5px;color:var(--ink-soft);}
+.maintabs{display:flex;gap:4px;background:var(--bg);border-radius:10px;padding:3px;overflow-x:auto;max-width:100%;}
+.maintab{border:none;background:none;padding:8px 13px;font-family:'Inter',sans-serif;font-weight:600;font-size:12.5px;color:var(--ink-soft);border-radius:8px;cursor:pointer;white-space:nowrap;}
 .maintab.active{background:var(--panel);color:var(--brand);box-shadow:0 1px 2px rgba(0,0,0,.06);}
 
-/* layout */
-.layout{display:grid;grid-template-columns:1fr 340px;gap:18px;align-items:start;}
-@media(max-width:1000px){.layout{grid-template-columns:1fr;}}
+/* main */
 .mainpanel{display:none;}
 .mainpanel.active{display:block;}
 .plan-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
-.page-title{font-family:'Space Grotesk',sans-serif;font-size:21px;font-weight:700;letter-spacing:-0.02em;margin:2px 4px 14px;}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;letter-spacing:-0.02em;margin:2px 4px 14px;}
 .plan-header .page-title{margin:0;}
 .plan-actions{display:flex;gap:8px;flex-wrap:wrap;}
-.ghost-btn{border:1px solid var(--line);background:var(--panel);color:var(--brand);font-weight:600;font-size:12.5px;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;}
+.ghost-btn{border:1px solid var(--line);background:var(--panel);color:var(--brand);font-weight:600;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;}
 .ghost-btn:hover{background:var(--brand-soft);}
 .ghost-btn:disabled{opacity:.4;cursor:default;background:var(--panel);}
-.board,.tabcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;}
+.board,.tabcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;}
 
 /* plan grid */
 .board{overflow-x:auto;}
-.grid{display:grid;grid-template-columns:90px repeat(7,minmax(160px,1fr));gap:8px;min-width:960px;}
+.grid{display:grid;grid-template-columns:80px repeat(7,minmax(150px,1fr));gap:7px;min-width:900px;}
 .day-head{text-align:center;padding:6px 4px;}
-.day-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:13px;}
-.slot-label{display:flex;align-items:center;font-size:12px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;padding:8px 4px;}
-.cell{position:relative;min-height:90px;background:var(--bg);border:1.5px dashed var(--line);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:5px;transition:background .15s,border-color .15s;cursor:pointer;}
+.day-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12.5px;}
+.slot-label{display:flex;align-items:center;font-size:11.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;padding:8px 4px;}
+.cell{position:relative;min-height:86px;background:var(--bg);border:1.5px dashed var(--line);border-radius:10px;padding:5px;display:flex;flex-direction:column;gap:5px;transition:background .15s,border-color .15s;cursor:pointer;}
 .cell:hover{border-color:var(--brand);}
 .cell.dragover{background:var(--brand-soft);border-color:var(--brand);}
-.meal-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 7px;font-size:11.5px;line-height:1.3;position:relative;cursor:default;}
-.meal-card .mc-name{font-weight:600;padding-right:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.meal-card .mc-name a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--ink-soft);}
-.meal-card .mc-name a:hover{color:var(--brand);}
+.combo-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:default;}
+.combo-row{padding:6px 7px;font-size:11.5px;line-height:1.3;position:relative;cursor:grab;}
+.combo-row:active{cursor:grabbing;}
+.combo-row + .combo-row{border-top:1px solid var(--line);}
+.mc-name{font-weight:600;padding-right:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mc-name a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--ink-soft);}
+.mc-name a:hover{color:var(--brand);}
+.mc-gf{color:var(--warn);margin-right:3px;cursor:help;font-size:11px;}
 .mc-remove{position:absolute;top:3px;right:4px;border:none;background:none;color:var(--ink-soft);cursor:pointer;font-size:13px;line-height:1;padding:2px;}
 .mc-remove:hover{color:var(--meat);}
 .mc-people{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:4px;}
 .mc-people button{width:16px;height:16px;flex:none;border-radius:4px;border:1px solid var(--line);background:var(--panel);font-size:10px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);}
 .mc-people button:hover{background:var(--brand-soft);color:var(--brand);}
 .mc-people span{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-soft);white-space:nowrap;}
-.recipe-picker{position:absolute;top:100%;left:0;z-index:30;background:var(--panel);border:1px solid var(--line);border-radius:9px;box-shadow:0 10px 24px rgba(0,0,0,.14);padding:6px;width:210px;max-height:230px;overflow-y:auto;margin-top:6px;cursor:default;}
+.recipe-picker{position:absolute;top:100%;left:0;z-index:30;background:var(--panel);border:1px solid var(--line);border-radius:9px;box-shadow:0 10px 24px rgba(0,0,0,.14);padding:6px;width:200px;max-height:220px;overflow-y:auto;margin-top:6px;cursor:default;}
 .rp-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:700;padding:4px 6px 6px;}
 .rp-item{display:block;width:100%;text-align:left;background:none;border:none;padding:7px 8px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink);}
 .rp-item:hover{background:var(--brand-soft);}
@@ -67,42 +70,39 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 
 /* stepper (shared) */
 .stepper{display:inline-flex;align-items:center;gap:7px;}
-.stepper button{width:24px;height:24px;flex:none;border-radius:6px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--ink);font-family:'Inter',sans-serif;}
+.stepper button{width:26px;height:26px;flex:none;border-radius:6px;border:1px solid var(--line);background:var(--bg);cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--ink);font-family:'Inter',sans-serif;}
 .stepper button:hover{background:var(--brand-soft);color:var(--brand);}
 .stepper-val{font-family:'IBM Plex Mono',monospace;font-size:11.5px;min-width:68px;text-align:center;}
 
 /* ingredients / shopping */
 .ing-section{margin-bottom:16px;}
 .ing-cat-title{font-size:11px;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:8px;}
-.ing-row{display:grid;grid-template-columns:1.2fr 1fr 1.6fr auto;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
+.ing-row{display:grid;grid-template-columns:1.2fr 1fr 1.6fr auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;}
 .ing-name{font-weight:600;text-transform:capitalize;}
 .ing-needed{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-soft);}
-.tri-btns{display:flex;gap:4px;}
+.tri-btns{display:flex;gap:4px;flex-wrap:wrap;}
 .tri-btns button{border:1px solid var(--line);background:var(--bg);color:var(--ink-soft);font-size:11px;padding:5px 8px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;}
 .tri-btns button.active{background:var(--brand);color:#fff;border-color:var(--brand);}
 .qty-toggle{display:flex;align-items:center;gap:5px;font-size:10.5px;color:var(--ink-soft);cursor:pointer;justify-self:end;white-space:nowrap;}
 .qty-toggle input{accent-color:var(--brand);}
 .empty{color:var(--ink-soft);font-size:13px;padding:24px 4px;text-align:center;}
-.shop-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;font-size:13.5px;border-bottom:1px solid var(--line);}
+.shop-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;font-size:13.5px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
 .shop-row em{color:var(--ink-soft);font-style:normal;font-size:11.5px;}
 .copy-btn{margin-top:14px;border:1px solid var(--line);background:var(--bg);padding:8px 14px;border-radius:8px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
 
-/* sidebar */
-.sidebar{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);display:flex;flex-direction:column;height:720px;overflow:hidden;}
-.tabs{display:flex;border-bottom:1px solid var(--line);}
-.tab{flex:1;padding:12px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;color:var(--ink-soft);background:none;border:none;font-family:'Inter',sans-serif;}
-.tab.active{color:var(--brand);box-shadow:inset 0 -2px 0 var(--brand);}
-.tabpanel{flex:1;overflow-y:auto;display:none;}
-.tabpanel.active{display:flex;flex-direction:column;}
+/* gluten tag */
+.gf-warn{margin-top:6px;font-size:10.5px;color:var(--warn);background:var(--warn-bg);padding:4px 7px;border-radius:6px;display:inline-block;}
 
-.lib-list{padding:10px;display:flex;flex-direction:column;gap:8px;}
+/* saved meals tab */
+.meals-layout{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;}
+.meals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
 .recipe-card{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 10px;cursor:grab;}
 .recipe-card:active{cursor:grabbing;}
 .rc-name{font-size:12.5px;font-weight:600;}
 .rc-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
 .rc-link{display:inline-block;margin-top:5px;font-size:11px;color:var(--brand);text-decoration:none;}
 .rc-link.muted{color:var(--ink-soft);}
-.add-recipe{padding:12px 10px;border-top:1px solid var(--line);margin-top:4px;}
+.add-recipe{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;}
 .ar-title{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--ink-soft);margin-bottom:8px;}
 .add-recipe input,.add-recipe textarea{width:100%;font-size:12px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:7px;padding:7px 9px;margin-bottom:7px;background:var(--bg);color:var(--ink);}
 .add-recipe textarea{min-height:56px;resize:vertical;}
@@ -112,21 +112,50 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 .add-recipe button{width:100%;border:none;background:var(--brand);color:#fff;padding:9px;border-radius:8px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
 .add-recipe button:disabled{opacity:.5;}
 .ar-status{font-size:11.5px;margin-top:7px;color:var(--ink-soft);}
+@media(max-width:800px){ .meals-layout{grid-template-columns:1fr;} }
 
-.chat-notes{padding:10px;border-bottom:1px solid var(--line);}
-.chat-notes textarea{width:100%;min-height:40px;font-size:11.5px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:8px;padding:6px 8px;resize:vertical;color:var(--ink-soft);background:var(--bg);}
-.cn-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
-.chat-log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
-.msg{max-width:88%;padding:8px 11px;border-radius:12px;font-size:13px;line-height:1.4;}
+/* floating chat widget */
+.chat-fab{position:fixed;bottom:22px;right:22px;width:56px;height:56px;border-radius:50%;background:var(--brand);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.22);z-index:90;display:flex;align-items:center;justify-content:center;}
+.chat-fab:hover{filter:brightness(1.08);}
+.chat-panel{position:fixed;bottom:88px;right:22px;width:368px;max-width:calc(100vw - 28px);height:540px;max-height:calc(100vh - 130px);background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.2);z-index:95;display:flex;flex-direction:column;overflow:hidden;}
+.chat-panel[hidden]{display:none;}
+.chat-panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.chat-panel-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;}
+.chat-panel-title .dot{width:8px;height:8px;border-radius:50%;background:var(--produce);display:inline-block;}
+.chat-mini-btn{border:1px solid var(--line);background:var(--bg);border-radius:6px;font-size:11px;padding:5px 9px;cursor:pointer;margin-left:6px;font-family:'Inter',sans-serif;}
+.chat-notes{padding:9px 12px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.chat-notes textarea{width:100%;min-height:38px;font-size:11px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:8px;padding:6px 8px;resize:vertical;color:var(--ink-soft);background:var(--bg);}
+.cn-label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
+.cn-caveat{font-size:9.5px;color:var(--ink-soft);margin-top:4px;line-height:1.35;}
+.chat-log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.msg{max-width:88%;padding:8px 11px;border-radius:12px;font-size:12.5px;line-height:1.4;}
 .msg.daniel{background:var(--brand-soft);align-self:flex-start;border-bottom-left-radius:3px;}
 .msg.user{background:var(--brand);color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
 .msg.thinking{background:var(--brand-soft);align-self:flex-start;color:var(--ink-soft);font-style:italic;}
-.chat-input{display:flex;gap:6px;padding:10px;border-top:1px solid var(--line);align-items:flex-end;}
-.chat-input textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:13px;min-height:38px;max-height:90px;}
-.chat-clip{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:0 10px;height:38px;cursor:pointer;font-size:15px;}
-.chat-input button.send{border:none;background:var(--brand);color:#fff;border-radius:9px;padding:0 16px;font-weight:600;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;height:38px;}
+.chat-input{display:flex;gap:6px;padding:9px;border-top:1px solid var(--line);align-items:flex-end;flex-shrink:0;}
+.chat-input textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:12.5px;min-height:36px;max-height:80px;}
+.chat-clip{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:0 9px;height:36px;cursor:pointer;font-size:14px;}
+.chat-input button.send{border:none;background:var(--brand);color:#fff;border-radius:9px;padding:0 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;height:36px;}
 .chat-input button.send:disabled{opacity:.5;}
-.chat-photo-tag{font-size:11px;color:var(--brand);padding:0 10px 8px;}
+.chat-photo-tag{font-size:10.5px;color:var(--brand);padding:0 12px 8px;flex-shrink:0;}
+@media(max-width:520px){
+  .chat-panel{width:calc(100vw - 20px);right:10px;bottom:78px;height:min(72vh,560px);}
+  .chat-fab{right:14px;bottom:14px;}
+}
+
+/* onboarding quiz */
+.quiz-overlay{position:fixed;inset:0;background:rgba(20,30,22,.5);z-index:120;display:flex;align-items:center;justify-content:center;padding:16px;}
+.quiz-overlay[hidden]{display:none;}
+.quiz-modal{background:var(--panel);border-radius:16px;max-width:640px;width:100%;max-height:88vh;overflow-y:auto;padding:22px;}
+.quiz-modal h2{font-family:'Space Grotesk',sans-serif;font-size:19px;margin:0 0 4px;}
+.quiz-intro{font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;line-height:1.5;}
+.quiz-q{margin-bottom:16px;}
+.quiz-q-title{font-weight:600;font-size:13px;margin-bottom:7px;}
+.quiz-options{display:flex;flex-wrap:wrap;gap:7px;}
+.quiz-opt{border:1px solid var(--line);border-radius:8px;padding:6px 11px;font-size:12px;cursor:pointer;background:var(--bg);font-family:'Inter',sans-serif;color:var(--ink);}
+.quiz-opt.selected{background:var(--brand);color:#fff;border-color:var(--brand);}
+.quiz-footer{display:flex;justify-content:space-between;align-items:center;margin-top:18px;position:sticky;bottom:-22px;background:var(--panel);padding:14px 0 4px;border-top:1px solid var(--line);}
+.quiz-footer .ghost-btn{background:var(--bg);}
 </style>
 </head>
 <body>
@@ -134,86 +163,103 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
   <div class="topbar">
     <div class="brand">
       <div class="brand-mark"></div>
-      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping — in one place</p></div>
+      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping</p></div>
     </div>
     <div class="maintabs">
       <button class="maintab active" data-main="plan">Plan</button>
       <button class="maintab" data-main="ingredients">Ingredients</button>
       <button class="maintab" data-main="shopping">Shopping List</button>
+      <button class="maintab" data-main="meals">Saved Meals</button>
     </div>
   </div>
 
-  <div class="layout">
-    <div class="main">
-      <div class="mainpanel active" id="panel-plan">
-        <div class="plan-header">
-          <h2 class="page-title">Meal Planner</h2>
-          <div class="plan-actions">
-            <button class="ghost-btn" id="prepopulateBtn" disabled>Prepopulate from Prior Week</button>
-            <button class="ghost-btn" id="newWeekBtn">Start New Week</button>
-          </div>
-        </div>
-        <div class="board"><div class="grid" id="grid"></div></div>
-      </div>
-      <div class="mainpanel" id="panel-ingredients">
-        <h2 class="page-title">Ingredients</h2>
-        <div class="tabcard" id="ingredientsPanel"></div>
-      </div>
-      <div class="mainpanel" id="panel-shopping">
-        <h2 class="page-title">Shopping List</h2>
-        <div class="tabcard" id="shoppingPanel"></div>
+  <div class="mainpanel active" id="panel-plan">
+    <div class="plan-header">
+      <h2 class="page-title">Meal Planner</h2>
+      <div class="plan-actions">
+        <button class="ghost-btn" id="prepopulateBtn" disabled>Prepopulate from Prior Week</button>
+        <button class="ghost-btn" id="newWeekBtn">Start New Week</button>
       </div>
     </div>
+    <div class="board"><div class="grid" id="grid"></div></div>
+  </div>
 
-    <div class="sidebar">
-      <div class="tabs">
-        <button class="tab active" data-tab="recipes">Saved Meals</button>
-        <button class="tab" data-tab="chat">Ask Daniel</button>
-      </div>
+  <div class="mainpanel" id="panel-ingredients">
+    <h2 class="page-title">Ingredients</h2>
+    <div class="tabcard" id="ingredientsPanel"></div>
+  </div>
 
-      <div class="tabpanel active" id="panel-recipes">
-        <div class="lib-list" id="libList"></div>
-        <div class="add-recipe">
-          <div class="ar-title">Add a meal</div>
-          <input id="arName" placeholder="Name (optional)">
-          <input id="arLink" placeholder="Recipe URL (optional)">
-          <input id="arServings" type="number" min="1" placeholder="Servings (default 6)">
-          <textarea id="arText" placeholder="Paste ingredients here if you have them"></textarea>
-          <div class="ar-row">
-            <label class="photo-btn">📷 Add photo<input id="arPhoto" type="file" accept="image/*" style="display:none"></label>
-            <span class="ar-photoname" id="arPhotoName"></span>
-          </div>
-          <button id="arSubmit">Add to Saved Meals</button>
-          <div class="ar-status" id="arStatus"></div>
-        </div>
-      </div>
+  <div class="mainpanel" id="panel-shopping">
+    <h2 class="page-title">Shopping List</h2>
+    <div class="tabcard" id="shoppingPanel"></div>
+  </div>
 
-      <div class="tabpanel" id="panel-chat">
-        <div class="chat-notes">
-          <div class="cn-label">What Daniel knows about your household</div>
-          <textarea id="notesBox">We're a family of 6. Not big on seafood. Trying to cook more vegetables into dinners.</textarea>
+  <div class="mainpanel" id="panel-meals">
+    <h2 class="page-title">Saved Meals</h2>
+    <div class="meals-layout">
+      <div class="meals-grid" id="libList"></div>
+      <div class="add-recipe">
+        <div class="ar-title">Add a meal</div>
+        <input id="arName" placeholder="Name (optional)">
+        <input id="arLink" placeholder="Recipe URL (optional)">
+        <input id="arServings" type="number" min="1" placeholder="Servings (default 6)">
+        <textarea id="arText" placeholder="Paste ingredients here if you have them"></textarea>
+        <div class="ar-row">
+          <label class="photo-btn">📷 Add photo<input id="arPhoto" type="file" accept="image/*" style="display:none"></label>
+          <span class="ar-photoname" id="arPhotoName"></span>
         </div>
-        <div class="chat-log" id="chatLog"></div>
-        <div class="chat-photo-tag" id="chatPhotoTag" style="display:none;"></div>
-        <div class="chat-input">
-          <label class="chat-clip">📎<input id="chatPhoto" type="file" accept="image/*" style="display:none"></label>
-          <textarea id="chatInput" placeholder="Paste a recipe link to add it to Saved Meals, or ask Daniel to plan a meal..."></textarea>
-          <button class="send" id="sendBtn">Send</button>
-        </div>
+        <button id="arSubmit">Add to Saved Meals</button>
+        <div class="ar-status" id="arStatus"></div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- floating chat widget -->
+<button class="chat-fab" id="chatFab" aria-label="Chat with Daniel">💬</button>
+<div class="chat-panel" id="chatPanel" hidden>
+  <div class="chat-panel-header">
+    <div class="chat-panel-title"><span class="dot"></span>Daniel</div>
+    <div>
+      <button class="chat-mini-btn" id="openProfileBtn">Profile</button>
+      <button class="chat-mini-btn" id="closeChatBtn">✕</button>
+    </div>
+  </div>
+  <div class="chat-notes">
+    <div class="cn-label">What Daniel knows about your household</div>
+    <textarea id="notesBox">We're a family of 6. One family member has celiac disease, so meals need to be gluten-free — no wheat, barley, rye, or cross-contaminated ingredients. Trying to cook more vegetables into dinners.</textarea>
+    <div class="cn-caveat">Gluten flags in the app are an automatic ingredient-keyword check, not a safety guarantee — always verify products and cross-contamination risk yourself.</div>
+  </div>
+  <div class="chat-log" id="chatLog"></div>
+  <div class="chat-photo-tag" id="chatPhotoTag" style="display:none;"></div>
+  <div class="chat-input">
+    <label class="chat-clip">📎<input id="chatPhoto" type="file" accept="image/*" style="display:none"></label>
+    <textarea id="chatInput" placeholder="Paste a recipe link, or ask Daniel to plan a meal..."></textarea>
+    <button class="send" id="sendBtn">Send</button>
+  </div>
+</div>
+
+<!-- onboarding quiz -->
+<div class="quiz-overlay" id="quizOverlay" hidden>
+  <div class="quiz-modal">
+    <h2>Tell Daniel about your household</h2>
+    <div class="quiz-intro">Quick multiple-choice questions to help Daniel suggest meals your family will actually eat. You can skip this or redo it anytime from the "Profile" button in the chat.</div>
+    <div id="quizBody"></div>
+    <div class="quiz-footer">
+      <button class="ghost-btn" id="quizSkipBtn">Skip for now</button>
+      <button class="ghost-btn" id="quizSaveBtn" style="background:var(--brand);color:#fff;border-color:var(--brand);">Save preferences</button>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ---------------- constants ---------------- */
+/* ================= constants ================= */
 const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const SLOTS = ['breakfast','lunch','dinner','snack'];
 const SLOT_LABEL = {breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner',snack:'Snack'};
 const CAT_COLOR = {produce:'var(--produce)', dairy:'var(--dairy)', meat:'var(--meat)', pantry:'var(--pantry)'};
 const CAT_ORDER = ['produce','dairy','meat','pantry'];
 const DEFAULT_SERVINGS = 6;
-// practical recipe/shelf units Claude assigns to every ingredient
 const UNIT_INFO = {
   gal:{max:4, step:0.25, label:'gal'},
   stick:{max:8, step:1, label:'stick(s)'},
@@ -222,8 +268,38 @@ const UNIT_INFO = {
   oz:{max:32, step:1, label:'oz'},
   count:{max:12, step:1, label:'ct'},
 };
-// realistic "buy in whole units" increments for the shopping list
 const BUY_INCREMENT = {gal:1, stick:1, cup:1, lb:0.5, oz:1, count:1};
+
+const GLUTEN_PATTERNS = [
+  {re:/\bwheat\b/, label:'wheat'},
+  {re:/\bflour\b/, exceptRe:/(almond|rice|corn|coconut|chickpea|gluten.?free)/, label:'flour'},
+  {re:/\bpasta\b|\bspaghetti\b|\bmacaroni\b/, label:'pasta'},
+  {re:/\bnoodle/, label:'noodles (check for wheat)'},
+  {re:/\bbread\b|breadcrumb/, label:'bread'},
+  {re:/\bbarley\b/, label:'barley'},
+  {re:/\brye\b/, label:'rye'},
+  {re:/\bmalt\b/, label:'malt'},
+  {re:/\bcouscous\b/, label:'couscous'},
+  {re:/\bbulgur\b/, label:'bulgur'},
+  {re:/\bseitan\b/, label:'seitan'},
+  {re:/\bbeer\b/, label:'beer'},
+  {re:/soy sauce/, label:'soy sauce (check tamari/GF label)'},
+  {re:/\bcrouton/, label:'croutons'},
+  {re:/\bcracker/, label:'crackers'},
+  {re:/\bpretzel/, label:'pretzels'},
+  {re:/\btortilla\b/, label:'tortilla (check corn vs flour)'},
+  {re:/\boat/, label:'oats (check certified gluten-free)'},
+];
+function glutenFlags(recipe){
+  const hits = new Set();
+  (recipe.ingredients||[]).forEach(ing=>{
+    const n = (ing.name||'').toLowerCase();
+    GLUTEN_PATTERNS.forEach(p=>{
+      if(p.re.test(n) && !(p.exceptRe && p.exceptRe.test(n))) hits.add(p.label);
+    });
+  });
+  return Array.from(hits);
+}
 
 function uid(){ return Math.random().toString(36).slice(2,9); }
 function fmt(n){ return (Math.round(n*100)/100).toString(); }
@@ -238,8 +314,6 @@ function snapshotPlan(plan){
   DAYS.forEach(d=>{ copy[d]={}; SLOTS.forEach(s=>{ copy[d][s] = plan[d][s].map(i=>({...i})); }); });
   return copy;
 }
-
-/* reusable arrow stepper: value/min/max/step, onChange(newVal), unit label */
 function buildStepper(value, min, max, step, onChange, unitLabel){
   const wrap=document.createElement('div'); wrap.className='stepper';
   const dec=document.createElement('button'); dec.type='button'; dec.textContent='‹'; dec.setAttribute('aria-label','Decrease');
@@ -253,7 +327,7 @@ function buildStepper(value, min, max, step, onChange, unitLabel){
   return wrap;
 }
 
-/* ---------------- seed data (servings default to 6) ---------------- */
+/* ================= seed data ================= */
 const SEED_RECIPES = [
   {id:uid(), name:'Baked Chicken Fajita Bowl', link:null, servings:6, ingredients:[
     {name:'chicken breast', qty:2, unit:'lb', category:'meat'},
@@ -282,28 +356,59 @@ const SEED_RECIPES = [
     {name:'mixed berries', qty:4.5, unit:'cup', category:'produce'},
     {name:'honey', qty:2, unit:'oz', category:'pantry'},
   ]},
-  {id:uid(), name:'Banana Oat Pancakes', link:null, servings:6, ingredients:[
-    {name:'rolled oats', qty:2.25, unit:'cup', category:'pantry'},
-    {name:'milk', qty:0.125, unit:'gal', category:'dairy'},
-    {name:'banana', qty:3, unit:'count', category:'produce'},
-    {name:'egg', qty:3, unit:'count', category:'dairy'},
-    {name:'butter', qty:0.75, unit:'stick', category:'dairy'},
-    {name:'cinnamon', qty:0.5, unit:'oz', category:'pantry'},
+  {id:uid(), name:'Sausage & Peppers', link:null, servings:6, ingredients:[
+    {name:'sausage links', qty:2, unit:'lb', category:'meat'},
+    {name:'bell pepper', qty:3, unit:'count', category:'produce'},
+    {name:'onion', qty:2, unit:'count', category:'produce'},
+    {name:'olive oil', qty:2, unit:'oz', category:'pantry'},
+  ]},
+  {id:uid(), name:'Oatmeal with Berries', link:null, servings:6, ingredients:[
+    {name:'rolled oats', qty:3, unit:'cup', category:'pantry'},
+    {name:'milk', qty:0.1875, unit:'gal', category:'dairy'},
+    {name:'mixed berries', qty:3, unit:'cup', category:'produce'},
+    {name:'honey', qty:1.5, unit:'oz', category:'pantry'},
   ]},
 ];
 
-/* ---------------- state ---------------- */
+/* ================= quiz questions ================= */
+const QUIZ_QUESTIONS = [
+  {id:'q1', type:'multi', text:'Which cuisines does your household enjoy most?', options:['Italian','Mexican','Asian','American comfort food','Mediterranean','Indian']},
+  {id:'q2', type:'single', text:'What texture do you gravitate toward in a meal?', options:['Crunchy','Soft / tender','A mix of both',"Doesn't matter"]},
+  {id:'q3', type:'single', text:'How do you feel about spicy food?', options:['Love heat','Mild spice is fine','Prefer no spice','Varies by person']},
+  {id:'q4', type:'multi', text:'Which proteins do you eat most often?', options:['Chicken','Beef','Pork','Fish / seafood','Plant-based','Eggs']},
+  {id:'q5', type:'multi', text:'Any proteins your household avoids?', options:['None','Red meat','Pork','Shellfish','All meat','Dairy']},
+  {id:'q6', type:'single', text:'How much time do you typically have to cook on a weeknight?', options:['Under 20 min','20–40 min','40–60 min',"Not a constraint"]},
+  {id:'q7', type:'single', text:'Do you prefer trying new recipes or repeating favorites?', options:['Mostly new','A mix of both','Mostly favorites']},
+  {id:'q8', type:'single', text:'How many people are you typically cooking for?', options:['2','3–4','5–6','7+']},
+  {id:'q9', type:'multi', text:'Any known food allergies or intolerances?', options:['None','Gluten / celiac','Dairy / lactose','Nuts','Shellfish','Eggs','Soy']},
+  {id:'q10', type:'single', text:'How do you feel about leftovers?', options:['Love repurposing them','Prefer fresh each time','A mix of both']},
+  {id:'q11', type:'multi', text:'Which vegetables does your household enjoy?', options:['Leafy greens','Root vegetables','Peppers / onions','Squash','Broccoli / cauliflower','Not a big veggie household']},
+  {id:'q12', type:'multi', text:'Any vegetables you tend to avoid?', options:['None','Mushrooms','Eggplant','Brussels sprouts','Okra','Peas']},
+  {id:'q13', type:'single', text:"What's your go-to breakfast style?", options:['Sweet','Savory','Quick / grab-and-go','Big weekend breakfast']},
+  {id:'q14', type:'single', text:'How adventurous is your household with new cuisines?', options:['Very adventurous','Somewhat','Prefer familiar meals']},
+  {id:'q15', type:'multi', text:'Preferred grain or starch base?', options:['Rice','Pasta','Potatoes','Bread','Quinoa / other grains']},
+  {id:'q16', type:'single', text:'How important is a meal being kid-friendly?', options:['Very important','Somewhat','Not a factor']},
+  {id:'q17', type:'single', text:'Cheese / dairy preference in meals?', options:['Love cheesy dishes','Light dairy','Dairy-free preferred','No preference']},
+  {id:'q18', type:'single', text:'How do you feel about one-pot or sheet-pan meals?', options:['Love them','Prefer separate components','No preference']},
+  {id:'q19', type:'single', text:'Sweet-savory combinations (like a glaze or sauce)?', options:['Love it','Prefer savory only','Depends on the dish']},
+  {id:'q20', type:'single', text:'What kind of snacks does your household reach for?', options:['Salty / crunchy','Sweet','Fresh fruit or veg','Not big snackers']},
+];
+
+/* ================= state ================= */
 const state = {
   recipes: SEED_RECIPES,
   plan: emptyPlan(),
   priorWeek: null,
-  stock: {},       // key -> {mode:'status'|'quantity', status:'in'|'low'|'out', have:number}
-  shopBuyQty: {},   // key -> user-adjusted buy quantity (session)
+  stock: {},
+  shopBuyQty: {},
+  quizAnswers: {},
+  profileSummary: '',
 };
+state.plan['Mon'].breakfast.push({instanceId:uid(), recipeId:SEED_RECIPES[4].id, people:DEFAULT_SERVINGS});
 state.plan['Mon'].breakfast.push({instanceId:uid(), recipeId:SEED_RECIPES[3].id, people:DEFAULT_SERVINGS});
 state.plan['Mon'].dinner.push({instanceId:uid(), recipeId:SEED_RECIPES[0].id, people:DEFAULT_SERVINGS});
 
-/* ---------------- helpers ---------------- */
+/* ================= helpers ================= */
 function stockKey(name, unit){ return name.toLowerCase().trim()+'|'+unit; }
 function ensureStock(key){
   if(!(key in state.stock)) state.stock[key] = {mode:'status', status:'in', have:0};
@@ -326,7 +431,7 @@ function computeWeeklyNeeds(){
   return needs;
 }
 
-/* ---------------- render: plan grid ---------------- */
+/* ================= render: plan grid ================= */
 function closeAllPickers(){ document.querySelectorAll('.recipe-picker').forEach(p=>p.hidden=true); }
 document.addEventListener('click', closeAllPickers);
 
@@ -345,33 +450,42 @@ function renderGrid(){
     DAYS.forEach(day=>{
       const cell=document.createElement('div'); cell.className='cell'; cell.dataset.day=day; cell.dataset.slot=slot;
 
-      state.plan[day][slot].forEach(inst=>{
-        const recipe = state.recipes.find(r=>r.id===inst.recipeId);
-        if(!recipe) return;
-        const card=document.createElement('div'); card.className='meal-card';
-        card.addEventListener('click', e=> e.stopPropagation());
-        const nameDiv=document.createElement('div'); nameDiv.className='mc-name';
-        nameDiv.innerHTML = recipe.link ? `<a href="${recipe.link}" target="_blank" rel="noopener">${recipe.name}</a>` : recipe.name;
-        const removeBtn=document.createElement('button'); removeBtn.className='mc-remove'; removeBtn.textContent='×'; removeBtn.title='Remove';
-        removeBtn.addEventListener('click', ()=>{
-          state.plan[day][slot] = state.plan[day][slot].filter(i=>i.instanceId!==inst.instanceId);
-          renderAll();
+      if(state.plan[day][slot].length){
+        const combo=document.createElement('div'); combo.className='combo-card';
+        combo.addEventListener('click', e=> e.stopPropagation());
+        state.plan[day][slot].forEach(inst=>{
+          const recipe = state.recipes.find(r=>r.id===inst.recipeId);
+          if(!recipe) return;
+          const row=document.createElement('div'); row.className='combo-row'; row.draggable=true;
+          row.addEventListener('dragstart', e=>{
+            e.dataTransfer.setData('text/plain', JSON.stringify({moveInstanceId:inst.instanceId, fromDay:day, fromSlot:slot}));
+          });
+          const flags = glutenFlags(recipe);
+          const nameDiv=document.createElement('div'); nameDiv.className='mc-name';
+          nameDiv.innerHTML = (flags.length ? `<span class="mc-gf" title="May contain gluten: ${flags.join(', ')}">⚠</span>` : '') +
+            (recipe.link ? `<a href="${recipe.link}" target="_blank" rel="noopener">${recipe.name}</a>` : recipe.name);
+          const removeBtn=document.createElement('button'); removeBtn.className='mc-remove'; removeBtn.textContent='×'; removeBtn.title='Remove';
+          removeBtn.addEventListener('click', ()=>{
+            state.plan[day][slot] = state.plan[day][slot].filter(i=>i.instanceId!==inst.instanceId);
+            renderAll();
+          });
+          const peopleWrap=document.createElement('div'); peopleWrap.className='mc-people';
+          const dec=document.createElement('button'); dec.type='button'; dec.textContent='‹';
+          const val=document.createElement('span'); val.textContent=`Serves ${inst.people}`;
+          const inc=document.createElement('button'); inc.type='button'; inc.textContent='›';
+          dec.addEventListener('click', ()=>{ if(inst.people>1){ inst.people--; val.textContent=`Serves ${inst.people}`; renderIngredients(); renderShopping(); } });
+          inc.addEventListener('click', ()=>{ if(inst.people<12){ inst.people++; val.textContent=`Serves ${inst.people}`; renderIngredients(); renderShopping(); } });
+          peopleWrap.append(dec,val,inc);
+          row.append(removeBtn, nameDiv, peopleWrap);
+          combo.appendChild(row);
         });
-        const peopleWrap=document.createElement('div'); peopleWrap.className='mc-people';
-        const dec=document.createElement('button'); dec.type='button'; dec.textContent='‹';
-        const val=document.createElement('span'); val.textContent=`Serves ${inst.people}`;
-        const inc=document.createElement('button'); inc.type='button'; inc.textContent='›';
-        dec.addEventListener('click', ()=>{ if(inst.people>1){ inst.people--; val.textContent=`Serves ${inst.people}`; renderIngredients(); renderShopping(); } });
-        inc.addEventListener('click', ()=>{ if(inst.people<12){ inst.people++; val.textContent=`Serves ${inst.people}`; renderIngredients(); renderShopping(); } });
-        peopleWrap.append(dec,val,inc);
-        card.append(removeBtn, nameDiv, peopleWrap);
-        cell.appendChild(card);
-      });
+        cell.appendChild(combo);
+      }
 
       const picker=document.createElement('div'); picker.className='recipe-picker'; picker.hidden=true;
       picker.innerHTML = `<div class="rp-title">${SLOT_LABEL[slot]} · ${day}</div>` +
         (state.recipes.length ? state.recipes.map(r=>`<button type="button" class="rp-item" data-recipe="${r.id}">${r.name}</button>`).join('')
-                               : `<div class="rp-empty">No saved meals yet — add one from the sidebar.</div>`);
+                               : `<div class="rp-empty">No saved meals yet — add one from Saved Meals.</div>`);
       picker.addEventListener('click', e=> e.stopPropagation());
       picker.querySelectorAll('.rp-item').forEach(btn=>{
         btn.addEventListener('click', ()=>{
@@ -394,8 +508,18 @@ function renderGrid(){
         e.preventDefault(); cell.classList.remove('dragover');
         try{
           const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-          const recipe = state.recipes.find(r=>r.id===data.recipeId);
-          if(recipe){ state.plan[day][slot].push({instanceId:uid(), recipeId:recipe.id, people:recipe.servings||DEFAULT_SERVINGS}); renderAll(); }
+          if(data.moveInstanceId){
+            const origin = state.plan[data.fromDay][data.fromSlot];
+            const idx = origin.findIndex(i=>i.instanceId===data.moveInstanceId);
+            if(idx>-1){
+              const [moved] = origin.splice(idx,1);
+              state.plan[day][slot].push(moved);
+              renderAll();
+            }
+          } else if(data.recipeId){
+            const recipe = state.recipes.find(r=>r.id===data.recipeId);
+            if(recipe){ state.plan[day][slot].push({instanceId:uid(), recipeId:recipe.id, people:recipe.servings||DEFAULT_SERVINGS}); renderAll(); }
+          }
         }catch(err){}
       });
 
@@ -404,7 +528,7 @@ function renderGrid(){
   });
 }
 
-/* ---------------- render: ingredients ---------------- */
+/* ================= render: ingredients ================= */
 function renderIngredients(){
   const needs = computeWeeklyNeeds();
   const el = document.getElementById('ingredientsPanel');
@@ -419,7 +543,6 @@ function renderIngredients(){
       const stock = ensureStock(key);
       const info = UNIT_INFO[v.unit];
       const row=document.createElement('div'); row.className='ing-row';
-
       const nameDiv=document.createElement('div'); nameDiv.className='ing-name'; nameDiv.textContent=v.name;
       const neededDiv=document.createElement('div'); neededDiv.className='ing-needed'; neededDiv.textContent=`${fmt(v.needed)} ${info.label} needed`;
       const controlDiv=document.createElement('div');
@@ -427,7 +550,6 @@ function renderIngredients(){
       const toggleInput=document.createElement('input'); toggleInput.type='checkbox'; toggleInput.checked = stock.mode==='quantity';
       const toggleSpan=document.createElement('span'); toggleSpan.textContent='Quantify';
       toggleLabel.append(toggleInput, toggleSpan);
-
       function paintControl(){
         controlDiv.innerHTML='';
         if(stock.mode==='status'){
@@ -445,7 +567,6 @@ function renderIngredients(){
       }
       paintControl();
       toggleInput.addEventListener('change', e=>{ stock.mode = e.target.checked ? 'quantity' : 'status'; paintControl(); renderShopping(); });
-
       row.append(nameDiv, neededDiv, controlDiv, toggleLabel);
       section.appendChild(row);
     });
@@ -453,7 +574,7 @@ function renderIngredients(){
   });
 }
 
-/* ---------------- render: shopping list ---------------- */
+/* ================= render: shopping list ================= */
 function renderShopping(){
   const needs = computeWeeklyNeeds();
   const el = document.getElementById('shoppingPanel');
@@ -472,10 +593,8 @@ function renderShopping(){
     if(state.shopBuyQty[key]===undefined) state.shopBuyQty[key] = base;
     rows.push({key, name:v.name, category:v.category, unit:v.unit, tag});
   });
-
   el.innerHTML='';
   if(!rows.length){ el.innerHTML = '<div class="empty">Nothing needed — your stock covers this week\'s plan.</div>'; return; }
-
   CAT_ORDER.forEach(cat=>{
     const items = rows.filter(r=>r.category===cat);
     if(!items.length) return;
@@ -494,7 +613,6 @@ function renderShopping(){
     });
     el.appendChild(section);
   });
-
   const copyBtn=document.createElement('button'); copyBtn.className='copy-btn'; copyBtn.textContent='Copy list';
   copyBtn.onclick = ()=>{
     const text = rows.map(r=>`${r.name} — ${fmt(state.shopBuyQty[r.key])} ${UNIT_INFO[r.unit].label}`).join('\n');
@@ -503,16 +621,18 @@ function renderShopping(){
   el.appendChild(copyBtn);
 }
 
-/* ---------------- render: saved meals ---------------- */
+/* ================= render: saved meals ================= */
 function renderSavedRecipes(){
   const el = document.getElementById('libList');
   el.innerHTML='';
   state.recipes.forEach(r=>{
+    const flags = glutenFlags(r);
     const card=document.createElement('div'); card.className='recipe-card'; card.draggable=true; card.dataset.recipeId=r.id;
     card.innerHTML = `
       <div class="rc-name">${r.name}</div>
       <div class="rc-meta">Serves ${r.servings} · ${r.ingredients.length} ingredients</div>
-      ${r.link ? `<a class="rc-link" href="${r.link}" target="_blank" rel="noopener">View recipe ↗</a>` : `<span class="rc-link muted">No source link</span>`}`;
+      ${r.link ? `<a class="rc-link" href="${r.link}" target="_blank" rel="noopener">View recipe ↗</a>` : `<span class="rc-link muted">No source link</span>`}
+      ${flags.length ? `<div class="gf-warn">⚠ May contain gluten: ${flags.join(', ')}</div>` : ''}`;
     card.addEventListener('dragstart', e=> e.dataTransfer.setData('text/plain', JSON.stringify({recipeId:r.id})));
     el.appendChild(card);
   });
@@ -521,7 +641,7 @@ function renderSavedRecipes(){
 function renderAll(){ renderGrid(); renderIngredients(); renderShopping(); renderSavedRecipes(); updateWeekButtons(); }
 function updateWeekButtons(){ document.getElementById('prepopulateBtn').disabled = !state.priorWeek; }
 
-/* ---------------- new week / prepopulate ---------------- */
+/* ================= new week / prepopulate ================= */
 document.getElementById('newWeekBtn').addEventListener('click', ()=>{
   const hasMeals = DAYS.some(d=>SLOTS.some(s=>state.plan[d][s].length));
   if(hasMeals) state.priorWeek = snapshotPlan(state.plan);
@@ -538,21 +658,15 @@ document.getElementById('prepopulateBtn').addEventListener('click', ()=>{
 
 renderAll();
 
-/* ---------------- tab switching ---------------- */
+/* ================= tab switching ================= */
 document.querySelectorAll('.maintab').forEach(t=> t.addEventListener('click', ()=>{
   document.querySelectorAll('.maintab').forEach(x=>x.classList.remove('active'));
   document.querySelectorAll('.mainpanel').forEach(x=>x.classList.remove('active'));
   t.classList.add('active');
   document.getElementById('panel-'+t.dataset.main).classList.add('active');
 }));
-document.querySelectorAll('.sidebar .tab').forEach(tab=> tab.addEventListener('click', ()=>{
-  document.querySelectorAll('.sidebar .tab').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.sidebar .tabpanel').forEach(x=>x.classList.remove('active'));
-  tab.classList.add('active');
-  document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
-}));
 
-/* ---------------- recipe ingestion (link / paste / photo) ---------------- */
+/* ================= recipe ingestion (link / paste / photo) ================= */
 async function ingestRecipe({name, link, servingsHint, rawText, imageBase64}){
   let fetchedText = null, fetchNote = '';
   if(link){
@@ -568,10 +682,10 @@ async function ingestRecipe({name, link, servingsHint, rawText, imageBase64}){
   let promptText = `Extract a structured recipe from the information below. Respond with ONLY JSON, no markdown fences.
 Schema: {"name": string, "link": string|null, "servings": number, "ingredients":[{"name":string,"qty":number,"unit":"gal"|"stick"|"cup"|"lb"|"oz"|"count","category":"produce"|"dairy"|"meat"|"pantry"}], "error": string|null}
 Rules:
-- For every ingredient, choose whichever of the six units (gal, stick, cup, lb, oz, count) is most practical for how that ingredient is actually measured and tracked, even if that means converting from how the source recipe wrote it. Examples: milk → gal, butter → stick, flour/rice/dry goods → cup or oz, meat → lb, produce/eggs → count, spices/oils/condiments → oz (a small jar or bottle amount).
-- IMPORTANT: convert the recipe's stated amount into that practical unit (e.g. "1 cup milk" becomes qty 0.0625, unit "gal"; "2 tbsp olive oil" becomes roughly qty 1, unit "oz").
-- category is for grouping only: produce, dairy, meat, or pantry (pantry = shelf-stable staples like grains, spices, oils, condiments).
-- If there isn't enough real information here to extract actual ingredients (e.g. the page couldn't be read and no text or photo was given), set "error" to a short plain-language explanation and leave ingredients as an empty array. Do not invent a recipe you don't have real information for.
+- For every ingredient, choose whichever of the six units (gal, stick, cup, lb, oz, count) is most practical for how that ingredient is actually measured and tracked, even if that means converting from how the source recipe wrote it. Examples: milk → gal, butter → stick, flour/rice/dry goods → cup or oz, meat → lb, produce/eggs → count, spices/oils/condiments → oz.
+- IMPORTANT: convert the recipe's stated amount into that practical unit (e.g. "1 cup milk" becomes qty 0.0625, unit "gal").
+- category is for grouping only: produce, dairy, meat, or pantry.
+- If there isn't enough real information here to extract actual ingredients, set "error" to a short plain-language explanation and leave ingredients as an empty array. Do not invent a recipe you don't have real information for.
 
 Name hint: ${name || '(not given, infer from content)'}
 Link: ${link || '(none)'}
@@ -627,7 +741,13 @@ document.getElementById('arSubmit').addEventListener('click', async ()=>{
   finally{ btn.disabled=false; }
 });
 
-/* ---------------- chat ---------------- */
+/* ================= chat widget ================= */
+const chatFab = document.getElementById('chatFab');
+const chatPanel = document.getElementById('chatPanel');
+chatFab.addEventListener('click', ()=>{ chatPanel.hidden = false; });
+document.getElementById('closeChatBtn').addEventListener('click', ()=>{ chatPanel.hidden = true; });
+document.getElementById('openProfileBtn').addEventListener('click', ()=>{ openQuiz(); });
+
 const chatLog = document.getElementById('chatLog');
 const chatInput = document.getElementById('chatInput');
 const sendBtn = document.getElementById('sendBtn');
@@ -651,7 +771,7 @@ function addMsg(text, cls){
   const div=document.createElement('div'); div.className='msg '+cls; div.textContent=text;
   chatLog.appendChild(div); chatLog.scrollTop = chatLog.scrollHeight; return div;
 }
-addMsg("Hi, I'm Daniel. Paste a recipe link or attach a photo and say \"add this to my saved meals,\" or ask me to put something on the plan — like \"add the fajita bowl to Wednesday dinner for 6 people.\"", 'daniel');
+addMsg("Hi, I'm Daniel. Tap the icon anytime to reach me. Paste a recipe link or attach a photo and say \"add this to my saved meals,\" or ask me to plan something — like \"add sausage and peppers to Wednesday dinner.\"", 'daniel');
 
 async function sendToDaniel(userText){
   const planLines = DAYS.map(day => `${day} — ` + SLOTS.map(slot=>{
@@ -662,17 +782,24 @@ async function sendToDaniel(userText){
     return `${slot}: ${items}`;
   }).join(' | ')).join('\n');
 
+  const mealsList = state.recipes.map(r=>{
+    const flags = glutenFlags(r);
+    return `${r.id}: ${r.name} (serves ${r.servings})${flags.length ? ` [may contain gluten: ${flags.join(', ')}]` : ' [no gluten flags detected]'}`;
+  }).join('\n') || '(none saved yet)';
+
   const system = `You are Daniel, a meal-planning assistant embedded in an app.
-Saved meals (id: name, servings):
-${state.recipes.map(r=>`${r.id}: ${r.name} (serves ${r.servings})`).join('\n') || '(none saved yet)'}
+Saved meals:
+${mealsList}
 
 Household notes: ${notesBox.value}
+
+Household profile (from onboarding quiz): ${state.profileSummary || '(quiz not completed yet)'}
 
 Current week plan (each entry shows its instance id so you can remove it precisely):
 ${planLines}
 
 Respond ONLY with JSON, no markdown fences: {"reply":"short friendly message, 2-4 sentences max","actions":[{"type":"add_meal","day":"Mon","slot":"dinner","recipeId":"<id>","people":6},{"type":"remove_meal","day":"Mon","slot":"dinner","instanceId":"<id>"}]}
-Rules: day must be one of Mon,Tue,Wed,Thu,Fri,Sat,Sun. slot must be one of breakfast,lunch,dinner,snack. Only use recipeId values from the saved meals list — never invent a meal; if the user wants something not saved, say so and suggest adding it via a link or photo. For remove_meal, use the exact instanceId shown above. Empty actions array if you're just answering a question.`;
+Rules: day must be one of Mon,Tue,Wed,Thu,Fri,Sat,Sun. slot must be one of breakfast,lunch,dinner,snack. Only use recipeId values from the saved meals list — never invent a meal. If household notes or profile mention a gluten restriction (e.g. celiac), do not add_meal a meal flagged with a gluten warning unless the user explicitly asks for it anyway — mention the concern in your reply instead. For remove_meal, use the exact instanceId shown above. Empty actions array if you're just answering a question.`;
 
   const thinking = addMsg('Daniel is thinking…', 'thinking');
   sendBtn.disabled = true;
@@ -721,7 +848,7 @@ sendBtn.addEventListener('click', async ()=>{
       } else {
         state.recipes.push({id:uid(), name:parsed.name||'Untitled meal', link:parsed.link||(urlMatch?urlMatch[0]:null), servings:parsed.servings||DEFAULT_SERVINGS, ingredients:parsed.ingredients||[]});
         renderSavedRecipes(); renderGrid();
-        addMsg(`Added "${parsed.name}" to your Saved Meals — serves ${parsed.servings||DEFAULT_SERVINGS}, ${(parsed.ingredients||[]).length} ingredients. Drag it onto the plan, or click any tile to pick it from Saved Meals.`, 'daniel');
+        addMsg(`Added "${parsed.name}" to your Saved Meals — serves ${parsed.servings||DEFAULT_SERVINGS}, ${(parsed.ingredients||[]).length} ingredients.`, 'daniel');
       }
     }catch(err){
       thinking.remove();
@@ -735,6 +862,57 @@ sendBtn.addEventListener('click', async ()=>{
 chatInput.addEventListener('keydown', e=>{
   if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendBtn.click(); }
 });
+
+/* ================= onboarding quiz ================= */
+const quizOverlay = document.getElementById('quizOverlay');
+function renderQuiz(){
+  const body = document.getElementById('quizBody');
+  body.innerHTML = '';
+  QUIZ_QUESTIONS.forEach(q=>{
+    const wrap=document.createElement('div'); wrap.className='quiz-q';
+    const title=document.createElement('div'); title.className='quiz-q-title'; title.textContent=q.text;
+    const opts=document.createElement('div'); opts.className='quiz-options';
+    const current = state.quizAnswers[q.id];
+    q.options.forEach(opt=>{
+      const btn=document.createElement('button'); btn.type='button'; btn.className='quiz-opt'; btn.textContent=opt;
+      const isSelected = q.type==='multi' ? (Array.isArray(current)&&current.includes(opt)) : current===opt;
+      if(isSelected) btn.classList.add('selected');
+      btn.addEventListener('click', ()=>{
+        if(q.type==='multi'){
+          let arr = Array.isArray(state.quizAnswers[q.id]) ? [...state.quizAnswers[q.id]] : [];
+          if(arr.includes(opt)) arr = arr.filter(o=>o!==opt); else arr.push(opt);
+          state.quizAnswers[q.id]=arr;
+        } else {
+          state.quizAnswers[q.id]=opt;
+        }
+        renderQuiz();
+      });
+      opts.appendChild(btn);
+    });
+    wrap.append(title, opts);
+    body.appendChild(wrap);
+  });
+}
+function openQuiz(){ renderQuiz(); quizOverlay.hidden = false; }
+function closeQuiz(){ quizOverlay.hidden = true; }
+function buildProfileSummary(){
+  return QUIZ_QUESTIONS.map(q=>{
+    const a = state.quizAnswers[q.id];
+    if(!a || (Array.isArray(a) && !a.length)) return null;
+    const val = Array.isArray(a) ? a.join(', ') : a;
+    return `${q.text} → ${val}`;
+  }).filter(Boolean).join('\n');
+}
+document.getElementById('quizSkipBtn').addEventListener('click', closeQuiz);
+document.getElementById('quizSaveBtn').addEventListener('click', ()=>{
+  state.profileSummary = buildProfileSummary();
+  closeQuiz();
+  addMsg("Thanks — I've saved your preferences and will factor them into meal suggestions.", 'daniel');
+  chatPanel.hidden = false;
+});
+
+/* show onboarding quiz on load (no persistence yet — this will reappear each visit until v2's backend) */
+openQuiz();
 </script>
 </body>
 </html>
