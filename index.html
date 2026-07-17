@@ -37,34 +37,52 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 .ghost-btn{border:1px solid var(--line);background:var(--panel);color:var(--brand);font-weight:600;font-size:12px;padding:8px 12px;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;}
 .ghost-btn:hover{background:var(--brand-soft);}
 .ghost-btn:disabled{opacity:.4;cursor:default;background:var(--panel);}
-.board,.tabcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;}
+.tabcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;}
 
-/* plan grid */
-.board{overflow-x:auto;}
-.grid{display:grid;grid-template-columns:80px repeat(7,minmax(150px,1fr));gap:7px;min-width:900px;}
-.day-head{text-align:center;padding:6px 4px;}
-.day-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12.5px;}
-.slot-label{display:flex;align-items:center;font-size:11.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;padding:8px 4px;}
-.cell{position:relative;min-height:86px;background:var(--bg);border:1.5px dashed var(--line);border-radius:10px;padding:5px;display:flex;flex-direction:column;gap:5px;transition:background .15s,border-color .15s;cursor:pointer;}
+/* day navigator */
+.day-nav{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.day-arrow{width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--panel);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);}
+.day-arrow:hover{background:var(--brand-soft);color:var(--brand);}
+.day-arrow:disabled{opacity:.3;cursor:default;background:var(--panel);color:var(--ink);}
+.day-strip{display:flex;gap:6px;overflow-x:auto;flex:1;padding:2px;scrollbar-width:thin;}
+.day-pill{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:6px 11px;text-align:center;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink-soft);min-width:42px;}
+.day-pill .dp-wd{font-weight:700;font-size:9.5px;display:block;letter-spacing:.03em;text-transform:uppercase;}
+.day-pill .dp-num{font-family:'IBM Plex Mono',monospace;font-size:13px;display:block;margin-top:2px;color:var(--ink);}
+.day-pill.active{background:var(--brand);border-color:var(--brand);}
+.day-pill.active .dp-num,.day-pill.active .dp-wd{color:#fff;}
+.day-pill.has-data:not(.active)::after{content:'';display:block;width:4px;height:4px;border-radius:50%;background:var(--brand);margin:3px auto 0;}
+
+/* single day card */
+.day-card-wrap{touch-action:pan-y;}
+.day-card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px;}
+.day-card-header{margin-bottom:16px;}
+.dch-weekday{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;}
+.today-badge{background:var(--brand-soft);color:var(--brand);font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;margin-left:8px;vertical-align:middle;}
+.dch-date{font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:var(--ink-soft);margin-top:3px;}
+.day-slot-section{margin-bottom:16px;}
+.day-slot-section .slot-label{padding:0 0 7px;font-size:11.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;}
+
+.cell{position:relative;min-height:64px;background:var(--bg);border:1.5px dashed var(--line);border-radius:10px;padding:6px;display:flex;flex-direction:column;gap:5px;transition:background .15s,border-color .15s;cursor:pointer;}
 .cell:hover{border-color:var(--brand);}
 .cell.dragover{background:var(--brand-soft);border-color:var(--brand);}
 .combo-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;overflow:hidden;cursor:default;}
-.combo-row{padding:6px 7px;font-size:11.5px;line-height:1.3;position:relative;cursor:grab;}
+.combo-row{padding:8px 9px;font-size:12.5px;line-height:1.35;position:relative;cursor:grab;}
 .combo-row:active{cursor:grabbing;}
 .combo-row + .combo-row{border-top:1px solid var(--line);}
-.mc-name{font-weight:600;padding-right:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.mc-name{font-weight:600;padding-right:32px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .mc-name a{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--ink-soft);}
 .mc-name a:hover{color:var(--brand);}
-.mc-gf{color:var(--warn);margin-right:3px;cursor:help;font-size:11px;}
-.mc-remove{position:absolute;top:3px;right:4px;border:none;background:none;color:var(--ink-soft);cursor:pointer;font-size:13px;line-height:1;padding:2px;}
+.mc-gf{color:var(--warn);margin-right:3px;cursor:help;font-size:12px;}
+.mc-shop{position:absolute;top:5px;right:23px;font-size:12px;cursor:help;line-height:1;}
+.mc-remove{position:absolute;top:5px;right:6px;border:none;background:none;color:var(--ink-soft);cursor:pointer;font-size:15px;line-height:1;padding:2px;}
 .mc-remove:hover{color:var(--meat);}
-.mc-people{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:4px;}
-.mc-people button{width:16px;height:16px;flex:none;border-radius:4px;border:1px solid var(--line);background:var(--panel);font-size:10px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);}
+.mc-people{display:flex;align-items:center;gap:6px;margin-top:5px;}
+.mc-people button{width:20px;height:20px;flex:none;border-radius:5px;border:1px solid var(--line);background:var(--panel);font-size:12px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);}
 .mc-people button:hover{background:var(--brand-soft);color:var(--brand);}
-.mc-people span{font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--ink-soft);white-space:nowrap;}
-.recipe-picker{position:absolute;top:100%;left:0;z-index:30;background:var(--panel);border:1px solid var(--line);border-radius:9px;box-shadow:0 10px 24px rgba(0,0,0,.14);padding:6px;width:200px;max-height:220px;overflow-y:auto;margin-top:6px;cursor:default;}
+.mc-people span{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);white-space:nowrap;}
+.recipe-picker{position:absolute;top:100%;left:0;z-index:30;background:var(--panel);border:1px solid var(--line);border-radius:9px;box-shadow:0 10px 24px rgba(0,0,0,.14);padding:6px;width:min(260px,90vw);max-height:230px;overflow-y:auto;margin-top:6px;cursor:default;}
 .rp-title{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:700;padding:4px 6px 6px;}
-.rp-item{display:block;width:100%;text-align:left;background:none;border:none;padding:7px 8px;border-radius:6px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink);}
+.rp-item{display:block;width:100%;text-align:left;background:none;border:none;padding:8px 8px;border-radius:6px;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink);}
 .rp-item:hover{background:var(--brand-soft);}
 .rp-empty{font-size:11.5px;color:var(--ink-soft);padding:6px;}
 
@@ -89,6 +107,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 .shop-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 0;font-size:13.5px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
 .shop-row em{color:var(--ink-soft);font-style:normal;font-size:11.5px;}
 .copy-btn{margin-top:14px;border:1px solid var(--line);background:var(--bg);padding:8px 14px;border-radius:8px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+.week-note{font-size:11px;color:var(--ink-soft);margin-bottom:12px;}
 
 /* gluten tag */
 .gf-warn{margin-top:6px;font-size:10.5px;color:var(--warn);background:var(--warn-bg);padding:4px 7px;border-radius:6px;display:inline-block;}
@@ -115,31 +134,55 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 @media(max-width:800px){ .meals-layout{grid-template-columns:1fr;} }
 
 /* floating chat widget */
-.chat-fab{position:fixed;bottom:22px;right:22px;width:56px;height:56px;border-radius:50%;background:var(--brand);color:#fff;border:none;font-size:24px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.22);z-index:90;display:flex;align-items:center;justify-content:center;}
+.chat-fab{position:fixed;bottom:22px;right:22px;display:flex;align-items:center;gap:9px;background:var(--brand);color:#fff;border:none;border-radius:999px;padding:10px 18px 10px 10px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.22);z-index:90;font-family:'Inter',sans-serif;font-weight:700;font-size:13.5px;}
 .chat-fab:hover{filter:brightness(1.08);}
-.chat-panel{position:fixed;bottom:88px;right:22px;width:368px;max-width:calc(100vw - 28px);height:540px;max-height:calc(100vh - 130px);background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.2);z-index:95;display:flex;flex-direction:column;overflow:hidden;}
-.chat-panel[hidden]{display:none;}
-.chat-panel-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line);flex-shrink:0;}
-.chat-panel-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;}
-.chat-panel-title .dot{width:8px;height:8px;border-radius:50%;background:var(--produce);display:inline-block;}
-.chat-mini-btn{border:1px solid var(--line);background:var(--bg);border-radius:6px;font-size:11px;padding:5px 9px;cursor:pointer;margin-left:6px;font-family:'Inter',sans-serif;}
-.chat-notes{padding:9px 12px;border-bottom:1px solid var(--line);flex-shrink:0;}
-.chat-notes textarea{width:100%;min-height:38px;font-size:11px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:8px;padding:6px 8px;resize:vertical;color:var(--ink-soft);background:var(--bg);}
-.cn-label{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:4px;}
-.cn-caveat{font-size:9.5px;color:var(--ink-soft);margin-top:4px;line-height:1.35;}
-.chat-log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;}
-.msg{max-width:88%;padding:8px 11px;border-radius:12px;font-size:12.5px;line-height:1.4;}
+.chat-fab .fab-dot{width:26px;height:26px;border-radius:50%;flex:none;background:conic-gradient(var(--produce) 0 90deg,var(--dairy) 90deg 180deg,var(--meat) 180deg 270deg,var(--pantry) 270deg 360deg);}
+
+.chat-overlay{position:fixed;inset:0;background:rgba(20,30,22,.45);z-index:110;display:flex;align-items:center;justify-content:center;padding:16px;}
+.chat-overlay[hidden]{display:none;}
+.chat-modal{background:var(--panel);border-radius:20px;width:min(460px,94vw);height:min(78vh,680px);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.25);}
+.chat-modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--line);flex-shrink:0;}
+.chat-modal-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;}
+.chat-modal-icons{display:flex;gap:6px;}
+.cm-icon{width:34px;height:34px;flex:none;border-radius:50%;border:none;background:var(--bg);color:var(--ink-soft);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.cm-icon:hover{background:var(--brand-soft);color:var(--brand);}
+
+.chat-body{flex:1;overflow:hidden;position:relative;}
+.chat-view{display:none;height:100%;overflow-y:auto;}
+.chat-view.active{display:block;}
+#view-log.active{display:flex;flex-direction:column;}
+.chat-view-pad{padding:18px;}
+
+.chat-welcome{padding:34px 24px;text-align:center;}
+.chat-avatar-big{width:104px;height:104px;border-radius:50%;margin:0 auto 20px;background:conic-gradient(var(--produce) 0 90deg,var(--dairy) 90deg 180deg,var(--meat) 180deg 270deg,var(--pantry) 270deg 360deg);}
+.chat-greeting{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;margin-bottom:22px;}
+.chat-suggest-label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:10px;text-align:left;}
+.chat-suggest{display:block;width:100%;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 16px;margin-bottom:10px;font-size:13.5px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink);}
+.chat-suggest:hover{background:var(--brand-soft);}
+
+.history-item{display:block;width:100%;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:0 0 8px;cursor:pointer;font-family:'Inter',sans-serif;}
+.hi-title{font-weight:600;font-size:13px;}
+.hi-date{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+
+.chat-notes{margin-bottom:14px;}
+.chat-notes textarea{width:100%;min-height:70px;font-size:12px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical;color:var(--ink-soft);background:var(--bg);}
+.cn-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:6px;}
+.cn-caveat{font-size:10px;color:var(--ink-soft);margin-top:6px;line-height:1.4;}
+
+.chat-log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:88%;padding:9px 12px;border-radius:13px;font-size:13px;line-height:1.4;}
 .msg.daniel{background:var(--brand-soft);align-self:flex-start;border-bottom-left-radius:3px;}
 .msg.user{background:var(--brand);color:#fff;align-self:flex-end;border-bottom-right-radius:3px;}
 .msg.thinking{background:var(--brand-soft);align-self:flex-start;color:var(--ink-soft);font-style:italic;}
-.chat-input{display:flex;gap:6px;padding:9px;border-top:1px solid var(--line);align-items:flex-end;flex-shrink:0;}
-.chat-input textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-family:'Inter',sans-serif;font-size:12.5px;min-height:36px;max-height:80px;}
-.chat-clip{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:0 9px;height:36px;cursor:pointer;font-size:14px;}
-.chat-input button.send{border:none;background:var(--brand);color:#fff;border-radius:9px;padding:0 14px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;height:36px;}
-.chat-input button.send:disabled{opacity:.5;}
-.chat-photo-tag{font-size:10.5px;color:var(--brand);padding:0 12px 8px;flex-shrink:0;}
+
+.chat-photo-tag{font-size:10.5px;color:var(--brand);padding:0 18px 8px;flex-shrink:0;}
+.chat-input-bar{display:flex;align-items:center;gap:8px;padding:12px 14px;border-top:1px solid var(--line);flex-shrink:0;background:var(--panel);}
+.cib-photo{width:38px;height:38px;flex:none;border-radius:50%;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;}
+.chat-input-bar textarea{flex:1;border:1px solid var(--line);background:var(--bg);border-radius:20px;padding:10px 16px;font-family:'Inter',sans-serif;font-size:13px;resize:none;min-height:40px;max-height:80px;}
+.cib-send{width:40px;height:40px;flex:none;border-radius:50%;background:var(--ink);color:#fff;border:none;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;}
+.cib-send:disabled{opacity:.5;}
 @media(max-width:520px){
-  .chat-panel{width:calc(100vw - 20px);right:10px;bottom:78px;height:min(72vh,560px);}
+  .chat-modal{width:96vw;height:88vh;border-radius:16px;}
   .chat-fab{right:14px;bottom:14px;}
 }
 
@@ -163,7 +206,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
   <div class="topbar">
     <div class="brand">
       <div class="brand-mark"></div>
-      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping</p></div>
+      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping · v1.3</p></div>
     </div>
     <div class="maintabs">
       <button class="maintab active" data-main="plan">Plan</button>
@@ -177,20 +220,28 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
     <div class="plan-header">
       <h2 class="page-title">Meal Planner</h2>
       <div class="plan-actions">
-        <button class="ghost-btn" id="prepopulateBtn" disabled>Prepopulate from Prior Week</button>
-        <button class="ghost-btn" id="newWeekBtn">Start New Week</button>
+        <button class="ghost-btn" id="prepopulateBtn" disabled>Copy Prior Week</button>
       </div>
     </div>
-    <div class="board"><div class="grid" id="grid"></div></div>
+    <div class="day-nav">
+      <button class="day-arrow" id="prevDayBtn" aria-label="Previous day">‹</button>
+      <div class="day-strip" id="dayStrip"></div>
+      <button class="day-arrow" id="nextDayBtn" aria-label="Next day">›</button>
+    </div>
+    <div class="day-card-wrap" id="dayCardWrap">
+      <div class="day-card" id="dayCard"></div>
+    </div>
   </div>
 
   <div class="mainpanel" id="panel-ingredients">
     <h2 class="page-title">Ingredients</h2>
+    <div class="week-note">Reflects the rolling 7 days starting today — not just the single day you're viewing in Plan.</div>
     <div class="tabcard" id="ingredientsPanel"></div>
   </div>
 
   <div class="mainpanel" id="panel-shopping">
     <h2 class="page-title">Shopping List</h2>
+    <div class="week-note">Reflects the rolling 7 days starting today.</div>
     <div class="tabcard" id="shoppingPanel"></div>
   </div>
 
@@ -209,6 +260,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
           <span class="ar-photoname" id="arPhotoName"></span>
         </div>
         <button id="arSubmit">Add to Saved Meals</button>
+        <button id="arQuickAdd" style="background:var(--bg);color:var(--brand);border:1px solid var(--line);margin-top:6px;">Add without a recipe (name only)</button>
         <div class="ar-status" id="arStatus"></div>
       </div>
     </div>
@@ -216,26 +268,48 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 </div>
 
 <!-- floating chat widget -->
-<button class="chat-fab" id="chatFab" aria-label="Chat with Daniel">💬</button>
-<div class="chat-panel" id="chatPanel" hidden>
-  <div class="chat-panel-header">
-    <div class="chat-panel-title"><span class="dot"></span>Daniel</div>
-    <div>
-      <button class="chat-mini-btn" id="openProfileBtn">Profile</button>
-      <button class="chat-mini-btn" id="closeChatBtn">✕</button>
+<button class="chat-fab" id="chatFab" aria-label="Chat with Daniel"><span class="fab-dot"></span>Chat with Daniel</button>
+<div class="chat-overlay" id="chatOverlay" hidden>
+  <div class="chat-modal">
+    <div class="chat-modal-header">
+      <div class="chat-modal-title">Daniel AI</div>
+      <div class="chat-modal-icons">
+        <button class="cm-icon" id="newChatBtn" title="New chat">✎</button>
+        <button class="cm-icon" id="historyBtn" title="History">🕐</button>
+        <button class="cm-icon" id="settingsBtn" title="Settings">⚙</button>
+        <button class="cm-icon" id="closeChatBtn" title="Close">✕</button>
+      </div>
     </div>
-  </div>
-  <div class="chat-notes">
-    <div class="cn-label">What Daniel knows about your household</div>
-    <textarea id="notesBox">We're a family of 6. One family member has celiac disease, so meals need to be gluten-free — no wheat, barley, rye, or cross-contaminated ingredients. Trying to cook more vegetables into dinners.</textarea>
-    <div class="cn-caveat">Gluten flags in the app are an automatic ingredient-keyword check, not a safety guarantee — always verify products and cross-contamination risk yourself.</div>
-  </div>
-  <div class="chat-log" id="chatLog"></div>
-  <div class="chat-photo-tag" id="chatPhotoTag" style="display:none;"></div>
-  <div class="chat-input">
-    <label class="chat-clip">📎<input id="chatPhoto" type="file" accept="image/*" style="display:none"></label>
-    <textarea id="chatInput" placeholder="Paste a recipe link, or ask Daniel to plan a meal..."></textarea>
-    <button class="send" id="sendBtn">Send</button>
+    <div class="chat-body">
+      <div class="chat-view active" id="view-welcome">
+        <div class="chat-welcome">
+          <div class="chat-avatar-big"></div>
+          <div class="chat-greeting">Hi, how can I help you today?</div>
+          <div class="chat-suggest-label">Suggestions:</div>
+          <button type="button" class="chat-suggest" data-q="What's on my plan this week?">What's on my plan this week?</button>
+          <button type="button" class="chat-suggest" data-q="What's missing from my shopping list?">What's missing from my shopping list?</button>
+          <button type="button" class="chat-suggest" data-q="Suggest a dinner for tonight">Suggest a dinner for tonight</button>
+        </div>
+      </div>
+      <div class="chat-view" id="view-log"><div class="chat-log" id="chatLog"></div></div>
+      <div class="chat-view chat-view-pad" id="view-history">
+        <div id="historyList"></div>
+      </div>
+      <div class="chat-view chat-view-pad" id="view-settings">
+        <div class="chat-notes">
+          <div class="cn-label">What Daniel knows about your household</div>
+          <textarea id="notesBox">We're a family of 6. One family member has celiac disease, so meals need to be gluten-free — no wheat, barley, rye, or cross-contaminated ingredients. Trying to cook more vegetables into dinners.</textarea>
+          <div class="cn-caveat">Gluten flags in the app are an automatic ingredient-keyword check, not a safety guarantee — always verify products and cross-contamination risk yourself.</div>
+        </div>
+        <button class="ghost-btn" id="openProfileBtn" style="width:100%;">Edit profile preferences</button>
+      </div>
+    </div>
+    <div class="chat-photo-tag" id="chatPhotoTag" style="display:none;"></div>
+    <div class="chat-input-bar">
+      <label class="cib-photo">📷<input id="chatPhoto" type="file" accept="image/*" style="display:none"></label>
+      <textarea id="chatInput" placeholder="Type your question"></textarea>
+      <button class="cib-send" id="sendBtn" aria-label="Send">➤</button>
+    </div>
   </div>
 </div>
 
@@ -252,9 +326,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
   </div>
 </div>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 /* ================= constants ================= */
-const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
 const SLOTS = ['breakfast','lunch','dinner','snack'];
 const SLOT_LABEL = {breakfast:'Breakfast',lunch:'Lunch',dinner:'Dinner',snack:'Snack'};
 const CAT_COLOR = {produce:'var(--produce)', dairy:'var(--dairy)', meat:'var(--meat)', pantry:'var(--pantry)'};
@@ -308,12 +382,6 @@ function normalizeBuyQty(need, unit){
   if(need<=0) return 0;
   return Math.ceil(need/inc)*inc;
 }
-function emptyPlan(){ return Object.fromEntries(DAYS.map(d=>[d, Object.fromEntries(SLOTS.map(s=>[s,[]]))])); }
-function snapshotPlan(plan){
-  const copy = {};
-  DAYS.forEach(d=>{ copy[d]={}; SLOTS.forEach(s=>{ copy[d][s] = plan[d][s].map(i=>({...i})); }); });
-  return copy;
-}
 function buildStepper(value, min, max, step, onChange, unitLabel){
   const wrap=document.createElement('div'); wrap.className='stepper';
   const dec=document.createElement('button'); dec.type='button'; dec.textContent='‹'; dec.setAttribute('aria-label','Decrease');
@@ -326,6 +394,17 @@ function buildStepper(value, min, max, step, onChange, unitLabel){
   wrap.append(dec,val,inc);
   return wrap;
 }
+
+/* ================= date helpers ================= */
+function isoDate(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+function todayStr(){ return isoDate(new Date()); }
+function addDays(dateStr, n){ const d=new Date(dateStr+'T00:00:00'); d.setDate(d.getDate()+n); return isoDate(d); }
+function mondayOf(dateStr){ const d=new Date(dateStr+'T00:00:00'); const dow=d.getDay(); const diff = dow===0? -6 : 1-dow; d.setDate(d.getDate()+diff); return isoDate(d); }
+function weekdayShort(dateStr){ return new Date(dateStr+'T00:00:00').toLocaleDateString('en-US',{weekday:'short'}); }
+function weekdayLong(dateStr){ return new Date(dateStr+'T00:00:00').toLocaleDateString('en-US',{weekday:'long'}); }
+function dateLabel(dateStr){ return new Date(dateStr+'T00:00:00').toLocaleDateString('en-US',{month:'short', day:'numeric'}); }
+function dayNum(dateStr){ return new Date(dateStr+'T00:00:00').getDate(); }
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 /* ================= seed data ================= */
 const SEED_RECIPES = [
@@ -397,16 +476,76 @@ const QUIZ_QUESTIONS = [
 /* ================= state ================= */
 const state = {
   recipes: SEED_RECIPES,
-  plan: emptyPlan(),
-  priorWeek: null,
+  plan: {},           // dateStr(YYYY-MM-DD) -> {breakfast:[],lunch:[],dinner:[],snack:[]}
+  currentDate: todayStr(),
   stock: {},
   shopBuyQty: {},
   quizAnswers: {},
   profileSummary: '',
+  chatThreads: [],
+  currentThreadMessages: [],
 };
-state.plan['Mon'].breakfast.push({instanceId:uid(), recipeId:SEED_RECIPES[4].id, people:DEFAULT_SERVINGS});
-state.plan['Mon'].breakfast.push({instanceId:uid(), recipeId:SEED_RECIPES[3].id, people:DEFAULT_SERVINGS});
-state.plan['Mon'].dinner.push({instanceId:uid(), recipeId:SEED_RECIPES[0].id, people:DEFAULT_SERVINGS});
+function getDaySlots(dateStr){
+  if(!state.plan[dateStr]) state.plan[dateStr] = Object.fromEntries(SLOTS.map(s=>[s,[]]));
+  return state.plan[dateStr];
+}
+function seedDefaults(){
+  getDaySlots(todayStr()).breakfast.push({instanceId:uid(), recipeId:SEED_RECIPES[4].id, people:DEFAULT_SERVINGS});
+  getDaySlots(todayStr()).breakfast.push({instanceId:uid(), recipeId:SEED_RECIPES[3].id, people:DEFAULT_SERVINGS});
+  getDaySlots(todayStr()).dinner.push({instanceId:uid(), recipeId:SEED_RECIPES[0].id, people:DEFAULT_SERVINGS});
+}
+
+/* ================= persistence (Supabase) ================= */
+// NOTE: no login/auth yet — everyone who opens this app URL shares this one
+// household record. Fine for a private family beta, not fine for anything
+// wider — that's exactly what real auth in a later step is for.
+const SUPABASE_URL = 'https://jewoloqrlkikhzsarxeu.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_zdcmMp5T79qwxuUPh4WrRA_wW3UcYEh';
+const HOUSEHOLD_ID = 'household-1';
+const sb = (typeof supabase !== 'undefined' && SUPABASE_URL.startsWith('http'))
+  ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+let saveTimer = null;
+function persistState(){
+  if(!sb) return; // Supabase not configured — app still works, just doesn't persist
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async ()=>{
+    try{
+      await sb.from('app_state').upsert({
+        id: HOUSEHOLD_ID,
+        recipes: state.recipes,
+        plan: state.plan,
+        updated_at: new Date().toISOString(),
+      });
+    }catch(err){ console.error('Save to Supabase failed:', err); }
+  }, 600);
+}
+
+async function loadState(){
+  if(!sb){
+    // No Supabase configured — behave like the old in-memory-only version
+    seedDefaults();
+    renderAll();
+    return;
+  }
+  try{
+    const { data, error } = await sb.from('app_state').select('recipes, plan').eq('id', HOUSEHOLD_ID).maybeSingle();
+    if(error) throw error;
+    if(data && data.recipes && data.recipes.length){
+      state.recipes = data.recipes;
+      state.plan = data.plan || {};
+    } else {
+      // first run for this household — seed starter data and save it
+      seedDefaults();
+      persistState();
+    }
+  }catch(err){
+    console.error('Could not load saved data — starting fresh for this session:', err);
+    seedDefaults();
+  }
+  renderAll();
+}
 
 /* ================= helpers ================= */
 function stockKey(name, unit){ return name.toLowerCase().trim()+'|'+unit; }
@@ -414,119 +553,191 @@ function ensureStock(key){
   if(!(key in state.stock)) state.stock[key] = {mode:'status', status:'in', have:0};
   return state.stock[key];
 }
+// Ingredients/Shopping reflect the rolling 7 days starting today (not the single day being viewed)
 function computeWeeklyNeeds(){
   const needs = {};
-  DAYS.forEach(day=> SLOTS.forEach(slot=>{
-    state.plan[day][slot].forEach(inst=>{
-      const recipe = state.recipes.find(r=>r.id===inst.recipeId);
-      if(!recipe) return;
-      const factor = inst.people / (recipe.servings||DEFAULT_SERVINGS);
-      recipe.ingredients.forEach(ing=>{
-        const key = stockKey(ing.name, ing.unit);
-        if(!needs[key]) needs[key] = {name:ing.name, unit:ing.unit, category:ing.category, needed:0};
-        needs[key].needed += ing.qty*factor;
+  for(let i=0;i<7;i++){
+    const d = addDays(todayStr(), i);
+    const slots = state.plan[d];
+    if(!slots) continue;
+    SLOTS.forEach(slot=>{
+      (slots[slot]||[]).forEach(inst=>{
+        const recipe = state.recipes.find(r=>r.id===inst.recipeId);
+        if(!recipe) return;
+        const factor = inst.people / (recipe.servings||DEFAULT_SERVINGS);
+        recipe.ingredients.forEach(ing=>{
+          const key = stockKey(ing.name, ing.unit);
+          if(!needs[key]) needs[key] = {name:ing.name, unit:ing.unit, category:ing.category, needed:0};
+          needs[key].needed += ing.qty*factor;
+        });
       });
     });
-  }));
+  }
   return needs;
 }
+function earliestDataDate(){
+  const today = todayStr();
+  const past = Object.keys(state.plan).filter(k=> k<today && SLOTS.some(s=>(state.plan[k][s]||[]).length));
+  if(!past.length) return today;
+  return past.sort()[0];
+}
 
-/* ================= render: plan grid ================= */
+/* ================= render: single-day plan ================= */
 function closeAllPickers(){ document.querySelectorAll('.recipe-picker').forEach(p=>p.hidden=true); }
 document.addEventListener('click', closeAllPickers);
 
-function renderGrid(){
-  const grid = document.getElementById('grid');
-  grid.innerHTML='';
-  grid.appendChild(Object.assign(document.createElement('div'),{className:'corner'}));
-  DAYS.forEach(day=>{
-    const head=document.createElement('div'); head.className='day-head';
-    head.innerHTML = `<div class="day-name">${day}</div>`;
-    grid.appendChild(head);
-  });
-  SLOTS.forEach(slot=>{
-    const label=document.createElement('div'); label.className='slot-label'; label.textContent=SLOT_LABEL[slot];
-    grid.appendChild(label);
-    DAYS.forEach(day=>{
-      const cell=document.createElement('div'); cell.className='cell'; cell.dataset.day=day; cell.dataset.slot=slot;
+function buildCell(dateStr, slot){
+  const cell=document.createElement('div'); cell.className='cell';
+  const slotArr = getDaySlots(dateStr)[slot];
 
-      if(state.plan[day][slot].length){
-        const combo=document.createElement('div'); combo.className='combo-card';
-        combo.addEventListener('click', e=> e.stopPropagation());
-        state.plan[day][slot].forEach(inst=>{
-          const recipe = state.recipes.find(r=>r.id===inst.recipeId);
-          if(!recipe) return;
-          const row=document.createElement('div'); row.className='combo-row'; row.draggable=true;
-          row.addEventListener('dragstart', e=>{
-            e.dataTransfer.setData('text/plain', JSON.stringify({moveInstanceId:inst.instanceId, fromDay:day, fromSlot:slot}));
-          });
-          const flags = glutenFlags(recipe);
-          const nameDiv=document.createElement('div'); nameDiv.className='mc-name';
-          nameDiv.innerHTML = (flags.length ? `<span class="mc-gf" title="May contain gluten: ${flags.join(', ')}">⚠</span>` : '') +
-            (recipe.link ? `<a href="${recipe.link}" target="_blank" rel="noopener">${recipe.name}</a>` : recipe.name);
-          const removeBtn=document.createElement('button'); removeBtn.className='mc-remove'; removeBtn.textContent='×'; removeBtn.title='Remove';
-          removeBtn.addEventListener('click', ()=>{
-            state.plan[day][slot] = state.plan[day][slot].filter(i=>i.instanceId!==inst.instanceId);
-            renderAll();
-          });
-          const peopleWrap=document.createElement('div'); peopleWrap.className='mc-people';
-          const dec=document.createElement('button'); dec.type='button'; dec.textContent='‹';
-          const val=document.createElement('span'); val.textContent=`Serves ${inst.people}`;
-          const inc=document.createElement('button'); inc.type='button'; inc.textContent='›';
-          dec.addEventListener('click', ()=>{ if(inst.people>1){ inst.people--; val.textContent=`Serves ${inst.people}`; renderIngredients(); renderShopping(); } });
-          inc.addEventListener('click', ()=>{ if(inst.people<12){ inst.people++; val.textContent=`Serves ${inst.people}`; renderIngredients(); renderShopping(); } });
-          peopleWrap.append(dec,val,inc);
-          row.append(removeBtn, nameDiv, peopleWrap);
-          combo.appendChild(row);
-        });
-        cell.appendChild(combo);
+  if(slotArr.length){
+    const combo=document.createElement('div'); combo.className='combo-card';
+    combo.addEventListener('click', e=> e.stopPropagation());
+    slotArr.forEach(inst=>{
+      const recipe = state.recipes.find(r=>r.id===inst.recipeId);
+      if(!recipe) return;
+      const row=document.createElement('div'); row.className='combo-row'; row.draggable=true;
+      row.addEventListener('dragstart', e=>{
+        e.dataTransfer.setData('text/plain', JSON.stringify({moveInstanceId:inst.instanceId, fromDate:dateStr, fromSlot:slot}));
+      });
+      const flags = glutenFlags(recipe);
+      const nameDiv=document.createElement('div'); nameDiv.className='mc-name';
+      nameDiv.innerHTML = (flags.length ? `<span class="mc-gf" title="May contain gluten: ${flags.join(', ')}">⚠</span>` : '') +
+        (recipe.link ? `<a href="${recipe.link}" target="_blank" rel="noopener">${recipe.name}</a>` : recipe.name);
+      const removeBtn=document.createElement('button'); removeBtn.className='mc-remove'; removeBtn.textContent='×'; removeBtn.title='Remove';
+      removeBtn.addEventListener('click', ()=>{
+        getDaySlots(dateStr)[slot] = getDaySlots(dateStr)[slot].filter(i=>i.instanceId!==inst.instanceId);
+        renderAll();
+      });
+      if(recipe.ingredients && recipe.ingredients.length){
+        const shopIcon=document.createElement('span'); shopIcon.className='mc-shop'; shopIcon.textContent='🛒';
+        shopIcon.title='This meal\'s ingredients are included in your Ingredients list';
+        row.appendChild(shopIcon);
       }
+      const peopleWrap=document.createElement('div'); peopleWrap.className='mc-people';
+      const dec=document.createElement('button'); dec.type='button'; dec.textContent='‹';
+      const val=document.createElement('span'); val.textContent=`Serves ${inst.people}`;
+      const inc=document.createElement('button'); inc.type='button'; inc.textContent='›';
+      dec.addEventListener('click', ()=>{ if(inst.people>1){ inst.people--; val.textContent=`Serves ${inst.people}`; renderIngredients(); renderShopping(); persistState(); } });
+      inc.addEventListener('click', ()=>{ if(inst.people<12){ inst.people++; val.textContent=`Serves ${inst.people}`; renderIngredients(); renderShopping(); persistState(); } });
+      peopleWrap.append(dec,val,inc);
+      row.append(removeBtn, nameDiv, peopleWrap);
+      combo.appendChild(row);
+    });
+    cell.appendChild(combo);
+  }
 
-      const picker=document.createElement('div'); picker.className='recipe-picker'; picker.hidden=true;
-      picker.innerHTML = `<div class="rp-title">${SLOT_LABEL[slot]} · ${day}</div>` +
-        (state.recipes.length ? state.recipes.map(r=>`<button type="button" class="rp-item" data-recipe="${r.id}">${r.name}</button>`).join('')
-                               : `<div class="rp-empty">No saved meals yet — add one from Saved Meals.</div>`);
-      picker.addEventListener('click', e=> e.stopPropagation());
-      picker.querySelectorAll('.rp-item').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          const recipe = state.recipes.find(r=>r.id===btn.dataset.recipe);
-          if(recipe){ state.plan[day][slot].push({instanceId:uid(), recipeId:recipe.id, people:recipe.servings||DEFAULT_SERVINGS}); renderAll(); }
-        });
-      });
-      cell.appendChild(picker);
-
-      cell.addEventListener('click', e=>{
-        e.stopPropagation();
-        const wasHidden = picker.hidden;
-        closeAllPickers();
-        picker.hidden = !wasHidden;
-      });
-
-      cell.addEventListener('dragover', e=>{ e.preventDefault(); cell.classList.add('dragover'); });
-      cell.addEventListener('dragleave', ()=> cell.classList.remove('dragover'));
-      cell.addEventListener('drop', e=>{
-        e.preventDefault(); cell.classList.remove('dragover');
-        try{
-          const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-          if(data.moveInstanceId){
-            const origin = state.plan[data.fromDay][data.fromSlot];
-            const idx = origin.findIndex(i=>i.instanceId===data.moveInstanceId);
-            if(idx>-1){
-              const [moved] = origin.splice(idx,1);
-              state.plan[day][slot].push(moved);
-              renderAll();
-            }
-          } else if(data.recipeId){
-            const recipe = state.recipes.find(r=>r.id===data.recipeId);
-            if(recipe){ state.plan[day][slot].push({instanceId:uid(), recipeId:recipe.id, people:recipe.servings||DEFAULT_SERVINGS}); renderAll(); }
-          }
-        }catch(err){}
-      });
-
-      grid.appendChild(cell);
+  const picker=document.createElement('div'); picker.className='recipe-picker'; picker.hidden=true;
+  picker.innerHTML = `<div class="rp-title">${SLOT_LABEL[slot]} · ${weekdayShort(dateStr)} ${dateLabel(dateStr)}</div>` +
+    (state.recipes.length ? state.recipes.map(r=>`<button type="button" class="rp-item" data-recipe="${r.id}">${r.name}</button>`).join('')
+                           : `<div class="rp-empty">No saved meals yet — add one from Saved Meals.</div>`);
+  picker.addEventListener('click', e=> e.stopPropagation());
+  picker.querySelectorAll('.rp-item').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const recipe = state.recipes.find(r=>r.id===btn.dataset.recipe);
+      if(recipe){ getDaySlots(dateStr)[slot].push({instanceId:uid(), recipeId:recipe.id, people:recipe.servings||DEFAULT_SERVINGS}); renderAll(); }
     });
   });
+  cell.appendChild(picker);
+
+  cell.addEventListener('click', e=>{
+    e.stopPropagation();
+    const wasHidden = picker.hidden;
+    closeAllPickers();
+    picker.hidden = !wasHidden;
+  });
+
+  cell.addEventListener('dragover', e=>{ e.preventDefault(); cell.classList.add('dragover'); });
+  cell.addEventListener('dragleave', ()=> cell.classList.remove('dragover'));
+  cell.addEventListener('drop', e=>{
+    e.preventDefault(); cell.classList.remove('dragover');
+    try{
+      const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+      if(data.moveInstanceId){
+        const origin = getDaySlots(data.fromDate)[data.fromSlot];
+        const idx = origin.findIndex(i=>i.instanceId===data.moveInstanceId);
+        if(idx>-1){
+          const [moved] = origin.splice(idx,1);
+          getDaySlots(dateStr)[slot].push(moved);
+          renderAll();
+        }
+      } else if(data.recipeId){
+        const recipe = state.recipes.find(r=>r.id===data.recipeId);
+        if(recipe){ getDaySlots(dateStr)[slot].push({instanceId:uid(), recipeId:recipe.id, people:recipe.servings||DEFAULT_SERVINGS}); renderAll(); }
+      }
+    }catch(err){}
+  });
+
+  return cell;
 }
+
+function renderDayCard(){
+  const card = document.getElementById('dayCard');
+  card.innerHTML='';
+  const d = state.currentDate;
+  const isToday = d===todayStr();
+  const header=document.createElement('div'); header.className='day-card-header';
+  header.innerHTML = `<div class="dch-weekday">${weekdayLong(d)}${isToday?' <span class="today-badge">Today</span>':''}</div><div class="dch-date">${dateLabel(d)}, ${d.slice(0,4)}</div>`;
+  card.appendChild(header);
+  SLOTS.forEach(slot=>{
+    const section=document.createElement('div'); section.className='day-slot-section';
+    const label=document.createElement('div'); label.className='slot-label'; label.textContent=SLOT_LABEL[slot];
+    section.appendChild(label);
+    section.appendChild(buildCell(d, slot));
+    card.appendChild(section);
+  });
+}
+
+function renderDayStrip(){
+  const strip = document.getElementById('dayStrip');
+  strip.innerHTML='';
+  const start = earliestDataDate();
+  const forwardBuffer = addDays(todayStr(), 13);
+  const end = state.currentDate > forwardBuffer ? addDays(state.currentDate, 3) : forwardBuffer;
+  let d = start;
+  const frag = document.createDocumentFragment();
+  let activeEl = null;
+  let guard = 0;
+  while(d <= end && guard < 400){
+    const pill=document.createElement('button'); pill.type='button'; pill.className='day-pill';
+    if(d===state.currentDate) pill.classList.add('active');
+    if(state.plan[d] && SLOTS.some(s=>(state.plan[d][s]||[]).length)) pill.classList.add('has-data');
+    pill.innerHTML = `<span class="dp-wd">${weekdayShort(d)}</span><span class="dp-num">${dayNum(d)}</span>`;
+    pill.addEventListener('click', ()=> goToDay(d));
+    frag.appendChild(pill);
+    if(d===state.currentDate) activeEl = pill;
+    d = addDays(d,1);
+    guard++;
+  }
+  strip.appendChild(frag);
+  document.getElementById('prevDayBtn').disabled = state.currentDate <= start;
+  if(activeEl) activeEl.scrollIntoView({inline:'center', block:'nearest'});
+}
+
+function goToDay(dateStr){
+  const limit = earliestDataDate();
+  if(dateStr < limit) dateStr = limit;
+  state.currentDate = dateStr;
+  renderDayCard();
+  renderDayStrip();
+}
+document.getElementById('prevDayBtn').addEventListener('click', ()=> goToDay(addDays(state.currentDate,-1)));
+document.getElementById('nextDayBtn').addEventListener('click', ()=> goToDay(addDays(state.currentDate,1)));
+
+// swipe support
+const dayCardWrap = document.getElementById('dayCardWrap');
+let touchStartX=null, touchStartY=null;
+dayCardWrap.addEventListener('touchstart', e=>{ touchStartX=e.touches[0].clientX; touchStartY=e.touches[0].clientY; }, {passive:true});
+dayCardWrap.addEventListener('touchend', e=>{
+  if(touchStartX===null) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  if(Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)*1.5){
+    if(dx<0) goToDay(addDays(state.currentDate,1));
+    else goToDay(addDays(state.currentDate,-1));
+  }
+  touchStartX=null; touchStartY=null;
+}, {passive:true});
 
 /* ================= render: ingredients ================= */
 function renderIngredients(){
@@ -630,7 +841,7 @@ function renderSavedRecipes(){
     const card=document.createElement('div'); card.className='recipe-card'; card.draggable=true; card.dataset.recipeId=r.id;
     card.innerHTML = `
       <div class="rc-name">${r.name}</div>
-      <div class="rc-meta">Serves ${r.servings} · ${r.ingredients.length} ingredients</div>
+      <div class="rc-meta">Serves ${r.servings} · ${r.ingredients.length ? r.ingredients.length + ' ingredients' : 'no ingredients tracked'}</div>
       ${r.link ? `<a class="rc-link" href="${r.link}" target="_blank" rel="noopener">View recipe ↗</a>` : `<span class="rc-link muted">No source link</span>`}
       ${flags.length ? `<div class="gf-warn">⚠ May contain gluten: ${flags.join(', ')}</div>` : ''}`;
     card.addEventListener('dragstart', e=> e.dataTransfer.setData('text/plain', JSON.stringify({recipeId:r.id})));
@@ -638,25 +849,35 @@ function renderSavedRecipes(){
   });
 }
 
-function renderAll(){ renderGrid(); renderIngredients(); renderShopping(); renderSavedRecipes(); updateWeekButtons(); }
-function updateWeekButtons(){ document.getElementById('prepopulateBtn').disabled = !state.priorWeek; }
+function renderAll(){ renderDayCard(); renderDayStrip(); renderIngredients(); renderShopping(); persistState(); renderSavedRecipes(); updateWeekButtons(); }
+function hasPriorWeekData(){
+  const thisMonday = mondayOf(todayStr());
+  const lastMonday = addDays(thisMonday, -7);
+  for(let i=0;i<7;i++){ const d=addDays(lastMonday,i); if(state.plan[d] && SLOTS.some(s=>(state.plan[d][s]||[]).length)) return true; }
+  return false;
+}
+function updateWeekButtons(){ document.getElementById('prepopulateBtn').disabled = !hasPriorWeekData(); }
 
-/* ================= new week / prepopulate ================= */
-document.getElementById('newWeekBtn').addEventListener('click', ()=>{
-  const hasMeals = DAYS.some(d=>SLOTS.some(s=>state.plan[d][s].length));
-  if(hasMeals) state.priorWeek = snapshotPlan(state.plan);
-  state.plan = emptyPlan();
-  renderAll();
-});
+/* ================= copy prior week (Mon-Sun, aligned by weekday) ================= */
 document.getElementById('prepopulateBtn').addEventListener('click', ()=>{
-  if(!state.priorWeek) return;
-  const copy = snapshotPlan(state.priorWeek);
-  DAYS.forEach(d=> SLOTS.forEach(s=> copy[d][s].forEach(i=> i.instanceId = uid())));
-  state.plan = copy;
+  const thisMonday = mondayOf(todayStr());
+  const lastMonday = addDays(thisMonday, -7);
+  let copied = 0;
+  for(let i=0;i<7;i++){
+    const src = addDays(lastMonday, i);
+    const tgt = addDays(thisMonday, i);
+    const srcSlots = state.plan[src];
+    if(!srcSlots) continue;
+    const tgtSlots = getDaySlots(tgt);
+    SLOTS.forEach(slot=>{
+      (srcSlots[slot]||[]).forEach(inst=>{ tgtSlots[slot].push({...inst, instanceId:uid()}); copied++; });
+    });
+  }
+  if(copied) goToDay(thisMonday);
   renderAll();
 });
 
-renderAll();
+loadState();
 
 /* ================= tab switching ================= */
 document.querySelectorAll('.maintab').forEach(t=> t.addEventListener('click', ()=>{
@@ -668,17 +889,6 @@ document.querySelectorAll('.maintab').forEach(t=> t.addEventListener('click', ()
 
 /* ================= recipe ingestion (link / paste / photo) ================= */
 async function ingestRecipe({name, link, servingsHint, rawText, imageBase64}){
-  let fetchedText = null, fetchNote = '';
-  if(link){
-    try{
-      const res = await fetch(link);
-      if(res.ok){
-        const html = await res.text();
-        fetchedText = html.replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').slice(0,8000);
-      } else { fetchNote = `The page responded with an error (status ${res.status}).`; }
-    }catch(e){ fetchNote = 'Could not automatically retrieve that page — many recipe sites block automated requests.'; }
-  }
-
   let promptText = `Extract a structured recipe from the information below. Respond with ONLY JSON, no markdown fences.
 Schema: {"name": string, "link": string|null, "servings": number, "ingredients":[{"name":string,"qty":number,"unit":"gal"|"stick"|"cup"|"lb"|"oz"|"count","category":"produce"|"dairy"|"meat"|"pantry"}], "error": string|null}
 Rules:
@@ -691,16 +901,17 @@ Name hint: ${name || '(not given, infer from content)'}
 Link: ${link || '(none)'}
 Servings hint: ${servingsHint || '(not given, infer or default to 6)'}
 `;
-  if(fetchedText) promptText += `\nPage text (may be noisy):\n${fetchedText}`;
-  else if(link) promptText += `\n${fetchNote}`;
   if(rawText) promptText += `\nUser-provided text:\n${rawText}`;
 
   const content = [{type:'text', text: promptText}];
   if(imageBase64) content.push({type:'image', source:{type:'base64', media_type:'image/jpeg', data: imageBase64}});
 
+  const body = { model:"claude-sonnet-4-6", max_tokens:1000, messages:[{role:"user", content}] };
+  if(link) body.fetchUrl = link;
+
   const response = await fetch("/api/daniel", {
     method:"POST", headers:{"Content-Type":"application/json"},
-    body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1000, messages:[{role:"user", content}] })
+    body: JSON.stringify(body)
   });
   const data = await response.json();
   const text = (data.content||[]).map(c=>c.text||'').join('').trim();
@@ -731,7 +942,7 @@ document.getElementById('arSubmit').addEventListener('click', async ()=>{
     if(parsed.error){ status.textContent = parsed.error; }
     else{
       state.recipes.push({id:uid(), name:parsed.name||name||'Untitled meal', link:parsed.link||link||null, servings:parsed.servings||parseInt(servings)||DEFAULT_SERVINGS, ingredients:parsed.ingredients||[]});
-      renderSavedRecipes(); renderGrid();
+      renderSavedRecipes(); renderDayCard(); persistState();
       status.textContent = `Added "${parsed.name||name}" (${(parsed.ingredients||[]).length} ingredients).`;
       document.getElementById('arName').value=''; document.getElementById('arLink').value='';
       document.getElementById('arServings').value=''; document.getElementById('arText').value='';
@@ -741,12 +952,74 @@ document.getElementById('arSubmit').addEventListener('click', async ()=>{
   finally{ btn.disabled=false; }
 });
 
+document.getElementById('arQuickAdd').addEventListener('click', ()=>{
+  const status = document.getElementById('arStatus');
+  const name = document.getElementById('arName').value.trim();
+  const link = document.getElementById('arLink').value.trim();
+  const servings = document.getElementById('arServings').value.trim();
+  if(!name){ status.textContent = 'Enter a name first (e.g. "Pizza night" or "Leftovers").'; return; }
+  state.recipes.push({id:uid(), name, link: link||null, servings: parseInt(servings)||DEFAULT_SERVINGS, ingredients: []});
+  renderSavedRecipes(); renderDayCard(); persistState();
+  status.textContent = `Added "${name}" — no ingredients tracked, so it won't appear on the Ingredients or Shopping List tabs.`;
+  document.getElementById('arName').value=''; document.getElementById('arLink').value='';
+  document.getElementById('arServings').value=''; document.getElementById('arText').value='';
+  document.getElementById('arPhotoName').textContent=''; arPhotoBase64=null;
+});
+
 /* ================= chat widget ================= */
 const chatFab = document.getElementById('chatFab');
-const chatPanel = document.getElementById('chatPanel');
-chatFab.addEventListener('click', ()=>{ chatPanel.hidden = false; });
-document.getElementById('closeChatBtn').addEventListener('click', ()=>{ chatPanel.hidden = true; });
+const chatOverlay = document.getElementById('chatOverlay');
+let chatView = 'welcome';
+
+function setChatView(v){
+  chatView = v;
+  document.querySelectorAll('.chat-view').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.querySelector('.chat-input-bar').style.display = (v==='log'||v==='welcome') ? 'flex' : 'none';
+  if(v==='history') renderHistoryList();
+}
+chatFab.addEventListener('click', ()=>{
+  chatOverlay.hidden = false;
+  setChatView(state.currentThreadMessages.length ? 'log' : 'welcome');
+});
+document.getElementById('closeChatBtn').addEventListener('click', ()=>{ chatOverlay.hidden = true; });
 document.getElementById('openProfileBtn').addEventListener('click', ()=>{ openQuiz(); });
+document.getElementById('historyBtn').addEventListener('click', ()=> setChatView('history'));
+document.getElementById('settingsBtn').addEventListener('click', ()=> setChatView('settings'));
+document.getElementById('newChatBtn').addEventListener('click', ()=>{
+  if(state.currentThreadMessages.length){
+    const firstUser = state.currentThreadMessages.find(m=>m.cls==='user');
+    state.chatThreads.unshift({id:uid(), title: firstUser ? firstUser.text.slice(0,42) : 'Conversation', createdAt:new Date().toISOString(), messages:[...state.currentThreadMessages]});
+  }
+  state.currentThreadMessages = [];
+  document.getElementById('chatLog').innerHTML='';
+  setChatView('welcome');
+});
+function renderHistoryList(){
+  const el = document.getElementById('historyList');
+  el.innerHTML='';
+  if(!state.chatThreads.length){ el.innerHTML='<div class="empty">No past conversations yet this session — history resets when the page reloads until v2\'s backend.</div>'; return; }
+  state.chatThreads.forEach(t=>{
+    const item=document.createElement('button'); item.type='button'; item.className='history-item';
+    const when = new Date(t.createdAt).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    item.innerHTML = `<div class="hi-title">${t.title}</div><div class="hi-date">${when}</div>`;
+    item.addEventListener('click', ()=>{
+      document.getElementById('chatLog').innerHTML='';
+      t.messages.forEach(m=>{
+        const div=document.createElement('div'); div.className='msg '+m.cls; div.textContent=m.text;
+        document.getElementById('chatLog').appendChild(div);
+      });
+      setChatView('log');
+    });
+    el.appendChild(item);
+  });
+}
+document.querySelectorAll('.chat-suggest').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    chatInput.value = btn.dataset.q;
+    sendBtn.click();
+  });
+});
 
 const chatLog = document.getElementById('chatLog');
 const chatInput = document.getElementById('chatInput');
@@ -768,19 +1041,24 @@ document.getElementById('chatPhoto').addEventListener('change', e=>{
 function clearChatPhoto(){ chatPendingImage=null; chatPhotoTag.style.display='none'; document.getElementById('chatPhoto').value=''; }
 
 function addMsg(text, cls){
+  if(cls!=='thinking') state.currentThreadMessages.push({text, cls});
   const div=document.createElement('div'); div.className='msg '+cls; div.textContent=text;
   chatLog.appendChild(div); chatLog.scrollTop = chatLog.scrollHeight; return div;
 }
-addMsg("Hi, I'm Daniel. Tap the icon anytime to reach me. Paste a recipe link or attach a photo and say \"add this to my saved meals,\" or ask me to plan something — like \"add sausage and peppers to Wednesday dinner.\"", 'daniel');
 
 async function sendToDaniel(userText){
-  const planLines = DAYS.map(day => `${day} — ` + SLOTS.map(slot=>{
-    const items = state.plan[day][slot].map(i=>{
-      const r = state.recipes.find(x=>x.id===i.recipeId);
-      return r ? `${r.name} [id:${i.instanceId}] (serves ${i.people})` : '';
-    }).filter(Boolean).join(', ') || '(empty)';
-    return `${slot}: ${items}`;
-  }).join(' | ')).join('\n');
+  const today = todayStr();
+  const relevantDates = Object.keys(state.plan).filter(d=> SLOTS.some(s=>(state.plan[d][s]||[]).length)).sort();
+  const planLines = relevantDates.map(d=>{
+    const parts = SLOTS.map(slot=>{
+      const items = (state.plan[d][slot]||[]).map(i=>{
+        const r = state.recipes.find(x=>x.id===i.recipeId);
+        return r ? `${r.name} [id:${i.instanceId}] (serves ${i.people})` : '';
+      }).filter(Boolean).join(', ') || '(empty)';
+      return `${slot}: ${items}`;
+    });
+    return `${d} (${weekdayShort(d)}) — ${parts.join(' | ')}`;
+  }).join('\n') || '(nothing planned yet)';
 
   const mealsList = state.recipes.map(r=>{
     const flags = glutenFlags(r);
@@ -788,6 +1066,8 @@ async function sendToDaniel(userText){
   }).join('\n') || '(none saved yet)';
 
   const system = `You are Daniel, a meal-planning assistant embedded in an app.
+Today's date is ${today} (${weekdayLong(today)}).
+
 Saved meals:
 ${mealsList}
 
@@ -795,11 +1075,11 @@ Household notes: ${notesBox.value}
 
 Household profile (from onboarding quiz): ${state.profileSummary || '(quiz not completed yet)'}
 
-Current week plan (each entry shows its instance id so you can remove it precisely):
+Currently planned dates (only dates with at least one meal are listed, each entry shows its instance id):
 ${planLines}
 
-Respond ONLY with JSON, no markdown fences: {"reply":"short friendly message, 2-4 sentences max","actions":[{"type":"add_meal","day":"Mon","slot":"dinner","recipeId":"<id>","people":6},{"type":"remove_meal","day":"Mon","slot":"dinner","instanceId":"<id>"}]}
-Rules: day must be one of Mon,Tue,Wed,Thu,Fri,Sat,Sun. slot must be one of breakfast,lunch,dinner,snack. Only use recipeId values from the saved meals list — never invent a meal. If household notes or profile mention a gluten restriction (e.g. celiac), do not add_meal a meal flagged with a gluten warning unless the user explicitly asks for it anyway — mention the concern in your reply instead. For remove_meal, use the exact instanceId shown above. Empty actions array if you're just answering a question.`;
+Respond ONLY with JSON, no markdown fences: {"reply":"short friendly message, 2-4 sentences max","actions":[{"type":"add_meal","date":"YYYY-MM-DD","slot":"dinner","recipeId":"<id>","people":6},{"type":"quick_add_meal","date":"YYYY-MM-DD","slot":"dinner","name":"Pizza night","people":6},{"type":"remove_meal","date":"YYYY-MM-DD","slot":"dinner","instanceId":"<id>"}]}
+Rules: date must be a real ISO date (YYYY-MM-DD). Resolve relative day references (e.g. "Wednesday", "tomorrow", "next Monday") to an actual date based on today's date above — a bare weekday name means the next upcoming occurrence of that weekday, including today if today is that day. slot must be one of breakfast,lunch,dinner,snack. Use add_meal only with recipeId values from the saved meals list above — never invent a meal there. If the user asks to add something that isn't in Saved Meals and doesn't seem to want ingredient tracking for it (e.g. "add pizza night", "we're ordering out Friday"), use quick_add_meal instead — it has no ingredients, so it won't show up on Ingredients or Shopping List. If they clearly want a real recipe tracked, tell them to add it via a link or photo instead. If household notes or profile mention a gluten restriction (e.g. celiac), do not add_meal a meal flagged with a gluten warning unless the user explicitly asks for it anyway — mention the concern in your reply instead. For remove_meal, use the exact instanceId shown above. Empty actions array if you're just answering a question.`;
 
   const thinking = addMsg('Daniel is thinking…', 'thinking');
   sendBtn.disabled = true;
@@ -814,14 +1094,24 @@ Rules: day must be one of Mon,Tue,Wed,Thu,Fri,Sat,Sun. slot must be one of break
     const parsed = JSON.parse(clean);
     thinking.remove();
     addMsg(parsed.reply || 'Done.', 'daniel');
+    let lastTouchedDate = null;
     (parsed.actions||[]).forEach(a=>{
-      if(a.type==='add_meal' && DAYS.includes(a.day) && SLOTS.includes(a.slot) && state.recipes.find(r=>r.id===a.recipeId)){
+      const validDate = typeof a.date==='string' && ISO_DATE_RE.test(a.date);
+      if(a.type==='add_meal' && validDate && SLOTS.includes(a.slot) && state.recipes.find(r=>r.id===a.recipeId)){
         const r = state.recipes.find(r=>r.id===a.recipeId);
-        state.plan[a.day][a.slot].push({instanceId:uid(), recipeId:a.recipeId, people:a.people||r.servings||DEFAULT_SERVINGS});
-      } else if(a.type==='remove_meal' && DAYS.includes(a.day) && SLOTS.includes(a.slot)){
-        state.plan[a.day][a.slot] = state.plan[a.day][a.slot].filter(i=>i.instanceId!==a.instanceId);
+        getDaySlots(a.date)[a.slot].push({instanceId:uid(), recipeId:a.recipeId, people:a.people||r.servings||DEFAULT_SERVINGS});
+        lastTouchedDate = a.date;
+      } else if(a.type==='quick_add_meal' && validDate && SLOTS.includes(a.slot) && a.name){
+        const newRecipe = {id:uid(), name:a.name, link:null, servings:a.people||DEFAULT_SERVINGS, ingredients:[]};
+        state.recipes.push(newRecipe);
+        getDaySlots(a.date)[a.slot].push({instanceId:uid(), recipeId:newRecipe.id, people:a.people||DEFAULT_SERVINGS});
+        lastTouchedDate = a.date;
+      } else if(a.type==='remove_meal' && validDate && SLOTS.includes(a.slot)){
+        getDaySlots(a.date)[a.slot] = getDaySlots(a.date)[a.slot].filter(i=>i.instanceId!==a.instanceId);
+        lastTouchedDate = a.date;
       }
     });
+    if(lastTouchedDate) state.currentDate = lastTouchedDate;
     renderAll();
   }catch(err){
     thinking.remove();
@@ -833,6 +1123,7 @@ Rules: day must be one of Mon,Tue,Wed,Thu,Fri,Sat,Sun. slot must be one of break
 sendBtn.addEventListener('click', async ()=>{
   const text = chatInput.value.trim();
   if(!text && !chatPendingImage) return;
+  if(chatView==='welcome') setChatView('log');
   addMsg(text || '(photo attached)', 'user');
   const urlMatch = text.match(/https?:\/\/[^\s]+/i);
   const imageToSend = chatPendingImage;
@@ -847,7 +1138,7 @@ sendBtn.addEventListener('click', async ()=>{
         addMsg(`I couldn't get a full recipe from that: ${parsed.error} Want to paste the ingredients, or send a clearer photo?`, 'daniel');
       } else {
         state.recipes.push({id:uid(), name:parsed.name||'Untitled meal', link:parsed.link||(urlMatch?urlMatch[0]:null), servings:parsed.servings||DEFAULT_SERVINGS, ingredients:parsed.ingredients||[]});
-        renderSavedRecipes(); renderGrid();
+        renderSavedRecipes(); renderDayCard(); persistState();
         addMsg(`Added "${parsed.name}" to your Saved Meals — serves ${parsed.servings||DEFAULT_SERVINGS}, ${(parsed.ingredients||[]).length} ingredients.`, 'daniel');
       }
     }catch(err){
@@ -907,8 +1198,9 @@ document.getElementById('quizSkipBtn').addEventListener('click', closeQuiz);
 document.getElementById('quizSaveBtn').addEventListener('click', ()=>{
   state.profileSummary = buildProfileSummary();
   closeQuiz();
+  chatOverlay.hidden = false;
+  setChatView(state.currentThreadMessages.length ? 'log' : 'welcome');
   addMsg("Thanks — I've saved your preferences and will factor them into meal suggestions.", 'daniel');
-  chatPanel.hidden = false;
 });
 
 /* show onboarding quiz on load (no persistence yet — this will reappear each visit until v2's backend) */
