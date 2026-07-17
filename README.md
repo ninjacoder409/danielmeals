@@ -49,10 +49,49 @@ commit to the `main` branch, Vercel automatically redeploys.
 Project → Settings → Environment Variables → edit `ANTHROPIC_API_KEY` → the
 next deploy (or a manual "Redeploy") will pick up the new value.
 
+## Persistence (v2, first slice)
+
+Meals and your weekly plan now persist across sessions and devices via
+Supabase — everything else (chat history, stock levels, quiz answers) still
+lives only in the browser tab for now, that's a deliberate scope cut, not an
+oversight.
+
+**Important limitation:** there's no login yet. Everyone who opens this app's
+URL shares one household record. That's fine for a private family beta where
+the URL isn't shared publicly — it is not fine once more people could
+plausibly find the link. Real auth is the natural next step after this.
+
+### Setup (about 5 minutes)
+1. Go to https://supabase.com, sign up / log in, create a new project (pick
+   any name/region, free tier is plenty)
+2. Once it's ready, go to the **SQL Editor** in the left sidebar → **New
+   query**, paste in the contents of `supabase-schema.sql` from this repo,
+   and run it
+3. Go to **Project Settings → API** and copy two values: the **Project URL**
+   and the **anon public** key (not the `service_role` key — that one must
+   never appear in frontend code)
+4. Open `index.html`, find these two lines near the top of the `<script>`
+   block, and replace the placeholders with your real values:
+   ```js
+   const SUPABASE_URL = 'YOUR_SUPABASE_PROJECT_URL';
+   const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+   ```
+5. Push the updated `index.html` to GitHub as usual — Vercel redeploys, and
+   the app now saves and loads your household's meals and plan automatically
+
+The anon key is meant to be public (Supabase's security model relies on
+database policies, not on hiding this key) — that part is normal. What's
+*not* fully locked down yet is the open access policy described above.
+
+If you skip this setup entirely, the app still works exactly as before —
+it just won't be configured, so it will fall back to in-memory only.
+
 ## Known limits of this beta
-- All data (saved meals, the weekly plan, stock levels) lives only in your
-  browser tab for now — refreshing loses it. Persistent storage is planned
-  for v2.
+
+- Chat history, stock/ingredient levels, and quiz answers still live only in
+  your browser tab — refreshing loses those. Meals and the weekly plan now
+  persist via Supabase (see above) if you've set that up.
+- No login yet — see the persistence section above for what that means.
 - Recipe links often can't be auto-read due to sites blocking automated
   requests (CORS) — pasting the ingredients or attaching a photo works
   reliably in that case.
