@@ -223,6 +223,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 .chat-notes textarea{width:100%;min-height:70px;font-size:12px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:8px;padding:8px 10px;resize:vertical;color:var(--ink-soft);background:var(--bg);}
 .cn-label{font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:6px;}
 .cn-caveat{font-size:10px;color:var(--ink-soft);margin-top:6px;line-height:1.4;}
+.fact-item{display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:7px 9px;margin-bottom:6px;font-size:11.5px;}
+.fact-remove{border:none;background:none;color:var(--ink-soft);cursor:pointer;font-size:14px;line-height:1;flex:none;}
+.fact-remove:hover{color:var(--meat);}
+.fact-empty{font-size:11.5px;color:var(--ink-soft);}
 
 .chat-log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
 .msg{max-width:88%;padding:9px 12px;border-radius:13px;font-size:13px;line-height:1.4;}
@@ -261,7 +265,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
   <div class="topbar">
     <div class="brand">
       <div class="brand-mark"></div>
-      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping · v1.8</p></div>
+      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping · v1.9.1</p></div>
     </div>
     <div class="maintabs">
       <button class="maintab active" data-main="plan">Plan</button>
@@ -409,6 +413,11 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
           <div class="cn-caveat">Gluten flags in the app are an automatic ingredient-keyword check, not a safety guarantee — always verify products and cross-contamination risk yourself.</div>
         </div>
         <button class="ghost-btn" id="openProfileBtn" style="width:100%;">Edit profile preferences</button>
+        <div class="chat-notes" style="margin-top:16px;">
+          <div class="cn-label">What Daniel has learned from conversations</div>
+          <div id="learnedFactsList"></div>
+          <div class="cn-caveat">Daniel adds to this automatically when you mention a lasting preference or change — click × to remove anything that's no longer accurate.</div>
+        </div>
       </div>
     </div>
     <div class="chat-photo-tag" id="chatPhotoTag" style="display:none;"></div>
@@ -591,6 +600,7 @@ const state = {
   profileSummary: '',
   chatThreads: [],
   currentThreadMessages: [],
+  learnedFacts: [],
   suggestedMeals: [],       // [{id,name,link,reason,imageUrl}]
   suggestionsWeekOf: null,  // ISO date of the Friday these suggestions belong to
   planViewMode: (typeof window!=='undefined' && window.innerWidth<768) ? 'day' : 'week',
@@ -628,6 +638,9 @@ function persistState(){
         plan: state.plan,
         suggested_meals: state.suggestedMeals,
         suggestions_week_of: state.suggestionsWeekOf,
+        chat_threads: state.chatThreads,
+        current_thread: state.currentThreadMessages,
+        learned_facts: state.learnedFacts,
         updated_at: new Date().toISOString(),
       });
     }catch(err){ console.error('Save to Supabase failed:', err); }
@@ -643,13 +656,16 @@ async function loadState(){
     return;
   }
   try{
-    const { data, error } = await sb.from('app_state').select('recipes, plan, suggested_meals, suggestions_week_of').eq('id', HOUSEHOLD_ID).maybeSingle();
+    const { data, error } = await sb.from('app_state').select('recipes, plan, suggested_meals, suggestions_week_of, chat_threads, current_thread, learned_facts').eq('id', HOUSEHOLD_ID).maybeSingle();
     if(error) throw error;
     if(data && data.recipes && data.recipes.length){
       state.recipes = data.recipes;
       state.plan = data.plan || {};
       state.suggestedMeals = data.suggested_meals || [];
       state.suggestionsWeekOf = data.suggestions_week_of || null;
+      state.chatThreads = data.chat_threads || [];
+      state.currentThreadMessages = data.current_thread || [];
+      state.learnedFacts = data.learned_facts || [];
     } else {
       // first run for this household — seed starter data and save it
       seedDefaults();
@@ -660,6 +676,7 @@ async function loadState(){
     seedDefaults();
   }
   renderAll();
+  restoreChatLog();
   maybeRefreshSuggestions();
 }
 
@@ -1174,8 +1191,7 @@ async function generateWeeklySuggestions(){
   renderSuggestedMeals(true); // show loading state
   try{
     const mealsList = state.recipes.map(r=>r.name).join(', ') || '(none saved yet)';
-    const prompt = `Search the web and recommend exactly 3 real, currently-live recipes this household would likely enjoy, that they don't already have saved. Never invent a URL — only use links you actually find via search. Strongly prefer recipe sites that are typically freely readable without a login or subscription (e.g. AllRecipes, Food Network, Simply Recipes, BBC Good Food, Serious Eats, Budget Bytes, Delish, Taste of Home, EatingWell) — avoid sites known for paywalls or subscriber-only content (e.g. NYT Cooking, Washington Post, Cook's Illustrated / America's Test Kitchen), since those often can't be read later when the user tries to add one.
-Household notes: ${notesBox ? notesBox.value : '(none)'}
+    const prompt = `Search the web and recommend exactly 3 real, currently-live recipes this household would likely enjoy, that they don't already have saved. Never invent a URL — only use links you actually find via search. Prefer smaller independent food blogs over large media-owned recipe sites when a good option exists — big corporate recipe sites (e.g. Allrecipes, Serious Eats, EatingWell, Food Network — many owned by conglomerates like Dotdash Meredith) increasingly block automated page fetches, while independent blogs on ordinary hosting are usually more reliably readable. This isn't about subscriptions or paywalls — it's about which sites tend to block non-browser requests.\nHousehold notes: ${notesBox ? notesBox.value : '(none)'}
 Household profile: ${state.profileSummary || '(quiz not completed yet)'}
 Already-saved meals (avoid close duplicates of these): ${mealsList}
 Respond with ONLY JSON, no markdown fences: {"suggestions":[{"name":string,"link":string,"reason":string}]} — exactly 3 items, reason is one short sentence on why it fits this household.`;
@@ -1398,7 +1414,7 @@ chatFab.addEventListener('click', ()=>{
 document.getElementById('closeChatBtn').addEventListener('click', ()=>{ chatOverlay.hidden = true; });
 document.getElementById('openProfileBtn').addEventListener('click', ()=>{ openQuiz(); });
 document.getElementById('historyBtn').addEventListener('click', ()=> setChatView('history'));
-document.getElementById('settingsBtn').addEventListener('click', ()=> setChatView('settings'));
+document.getElementById('settingsBtn').addEventListener('click', ()=>{ setChatView('settings'); renderLearnedFacts(); });
 document.getElementById('newChatBtn').addEventListener('click', ()=>{
   if(state.currentThreadMessages.length){
     const firstUser = state.currentThreadMessages.find(m=>m.cls==='user');
@@ -1407,6 +1423,7 @@ document.getElementById('newChatBtn').addEventListener('click', ()=>{
   state.currentThreadMessages = [];
   document.getElementById('chatLog').innerHTML='';
   setChatView('welcome');
+  persistState();
 });
 function renderHistoryList(){
   const el = document.getElementById('historyList');
@@ -1454,9 +1471,33 @@ document.getElementById('chatPhoto').addEventListener('change', e=>{
 function clearChatPhoto(){ chatPendingImage=null; chatPhotoTag.style.display='none'; document.getElementById('chatPhoto').value=''; }
 
 function addMsg(text, cls){
-  if(cls!=='thinking') state.currentThreadMessages.push({text, cls});
+  if(cls!=='thinking'){ state.currentThreadMessages.push({text, cls}); persistState(); }
   const div=document.createElement('div'); div.className='msg '+cls; div.textContent=text;
   chatLog.appendChild(div); chatLog.scrollTop = chatLog.scrollHeight; return div;
+}
+function restoreChatLog(){
+  chatLog.innerHTML='';
+  state.currentThreadMessages.forEach(m=>{
+    const div=document.createElement('div'); div.className='msg '+m.cls; div.textContent=m.text;
+    chatLog.appendChild(div);
+  });
+  chatLog.scrollTop = chatLog.scrollHeight;
+  if(state.currentThreadMessages.length) setChatView('log');
+  renderLearnedFacts();
+}
+function renderLearnedFacts(){
+  const el = document.getElementById('learnedFactsList');
+  if(!el) return;
+  el.innerHTML='';
+  if(!state.learnedFacts.length){ el.innerHTML = '<div class="fact-empty">Nothing learned yet — mention a lasting preference in chat and Daniel will remember it here.</div>'; return; }
+  state.learnedFacts.forEach((fact, idx)=>{
+    const row=document.createElement('div'); row.className='fact-item';
+    const span=document.createElement('span'); span.textContent=fact;
+    const rm=document.createElement('button'); rm.type='button'; rm.className='fact-remove'; rm.textContent='×'; rm.title='Remove';
+    rm.addEventListener('click', ()=>{ state.learnedFacts.splice(idx,1); renderLearnedFacts(); persistState(); });
+    row.append(span, rm);
+    el.appendChild(row);
+  });
 }
 
 async function handleFindAndAddMeal(query){
@@ -1466,7 +1507,7 @@ async function handleFindAndAddMeal(query){
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         model:'claude-sonnet-4-6', max_tokens:700, useWebSearch:true,
-        messages:[{role:'user', content:`Search the web to find a real, currently-live recipe matching this request: "${query}". Strongly prefer recipe sites that are typically freely readable without a login or subscription (e.g. AllRecipes, Food Network, Simply Recipes, BBC Good Food, Serious Eats, Budget Bytes, Delish, Taste of Home, EatingWell) — avoid sites known for paywalls or subscriber-only content (e.g. NYT Cooking, Washington Post, Cook's Illustrated / America's Test Kitchen). Respond with ONLY JSON, no markdown fences: {"name":string|null,"link":string|null,"altName":string|null,"altLink":string|null,"error":string|null}. link and altLink must be real URLs from your search results — never invent one. altLink should be a different, similarly good source as a fallback in case the primary link can't be read. If you can't find any good match, leave the name/link fields null and set error to a short explanation.`}]
+        messages:[{role:'user', content:`Search the web to find a real, currently-live recipe matching this request: "${query}". Prefer smaller independent food blogs over large media-owned recipe sites when a good option exists — big corporate sites increasingly block automated page fetches (this is about bot-blocking, not subscriptions or paywalls). Respond with ONLY JSON, no markdown fences: {"name":string|null,"link":string|null,"altName":string|null,"altLink":string|null,"alt2Name":string|null,"alt2Link":string|null,"error":string|null}. link, altLink, and alt2Link must be real URLs from your search results — never invent one. altLink and alt2Link should be different sources, ideally smaller independent sites, as fallbacks in case earlier links can't be read. If you can't find any good match, leave the name/link fields null and set error to a short explanation.`}]
       })
     });
     const data = await res.json();
@@ -1480,6 +1521,7 @@ async function handleFindAndAddMeal(query){
     }
     const candidates = [{name:found.name, link:found.link}];
     if(found.altLink) candidates.push({name:found.altName||found.name, link:found.altLink});
+    if(found.alt2Link) candidates.push({name:found.alt2Name||found.name, link:found.alt2Link});
 
     let parsed = null, lastError = null, usedName = found.name;
     for(const c of candidates){
@@ -1491,7 +1533,7 @@ async function handleFindAndAddMeal(query){
     }
 
     if(!parsed){
-      addMsg(`Found a recipe or two but couldn't read either one's ingredients (${lastError}). Want to paste a link or the ingredients yourself instead?`, 'daniel');
+      addMsg(`I found a few candidates but couldn't get a readable page for any of them (${lastError}) — this is usually a site blocking automated requests, not a real content issue. Want to paste a link or the ingredients yourself instead?`, 'daniel');
     } else {
       state.recipes.push({id:uid(), name:parsed.name||usedName, link:parsed.link, servings:parsed.servings||DEFAULT_SERVINGS, ingredients:parsed.ingredients||[]});
       renderSavedRecipes(); persistState();
@@ -1552,18 +1594,32 @@ Household notes: ${notesBox.value}
 
 Household profile (from onboarding quiz): ${state.profileSummary || '(quiz not completed yet)'}
 
+Learned from past conversations: ${state.learnedFacts.length ? state.learnedFacts.join('; ') : '(nothing learned yet)'}
+
 Currently planned dates (only dates with at least one meal are listed, each entry shows its instance id):
 ${planLines}
 
-Respond ONLY with JSON, no markdown fences: {"reply":"short friendly message, 2-4 sentences max","actions":[{"type":"add_meal","date":"YYYY-MM-DD","slot":"dinner","recipeId":"<id>","people":6},{"type":"quick_add_meal","date":"YYYY-MM-DD","slot":"dinner","name":"Pizza night","people":6},{"type":"remove_meal","date":"YYYY-MM-DD","slot":"dinner","instanceId":"<id>"},{"type":"find_and_add_meal","query":"chicken tikka masala"},{"type":"save_meal_from_message"}]}
-Rules: date must be a real ISO date (YYYY-MM-DD). Resolve relative day references (e.g. "Wednesday", "tomorrow", "next Monday") to an actual date based on today's date above — a bare weekday name means the next upcoming occurrence of that weekday, including today if today is that day. slot must be one of breakfast,lunch,dinner,snack. Use add_meal only with recipeId values from the saved meals list above — never invent a meal there. If the user asks to add something that isn't in Saved Meals and doesn't seem to want ingredient tracking for it (e.g. "add pizza night", "we're ordering out Friday"), use quick_add_meal instead — it has no ingredients, so it won't show up on Ingredients or Shopping List. If the user asks you to find/discover/search for a specific dish and save it, without giving a link (e.g. "find a good banana bread recipe and add it", "add a recipe for chicken tikka masala"), use find_and_add_meal with a short descriptive query — the app will search the web and pull the real recipe itself, so never invent ingredients or a link yourself here. If the user pastes actual ingredients or recipe text directly into their message and wants it saved (no link, no search needed), use save_meal_from_message so the app parses exactly what they wrote. If household notes or profile mention a gluten restriction (e.g. celiac), do not add_meal a meal flagged with a gluten warning unless the user explicitly asks for it anyway — mention the concern in your reply instead. For remove_meal, use the exact instanceId shown above. Empty actions array if you're just answering a question.`;
+You have access to the recent conversation history in this thread, so refer back to what was just discussed rather than asking the user to repeat themselves.
+
+Respond ONLY with JSON, no markdown fences: {"reply":"short friendly message, 2-4 sentences max","actions":[{"type":"add_meal","date":"YYYY-MM-DD","slot":"dinner","recipeId":"<id>","people":6},{"type":"quick_add_meal","date":"YYYY-MM-DD","slot":"dinner","name":"Pizza night","people":6},{"type":"remove_meal","date":"YYYY-MM-DD","slot":"dinner","instanceId":"<id>"},{"type":"find_and_add_meal","query":"chicken tikka masala"},{"type":"save_meal_from_message"},{"type":"remember_fact","fact":"short lasting fact about the household"}]}
+Rules: date must be a real ISO date (YYYY-MM-DD). Resolve relative day references (e.g. "Wednesday", "tomorrow", "next Monday") to an actual date based on today's date above — a bare weekday name means the next upcoming occurrence of that weekday, including today if today is that day. slot must be one of breakfast,lunch,dinner,snack. Use add_meal only with recipeId values from the saved meals list above — never invent a meal there. If the user asks to add something that isn't in Saved Meals and doesn't seem to want ingredient tracking for it (e.g. "add pizza night", "we're ordering out Friday"), use quick_add_meal instead — it has no ingredients, so it won't show up on Ingredients or Shopping List. If the user asks you to find/discover/search for a specific dish and save it, without giving a link (e.g. "find a good banana bread recipe and add it", "add a recipe for chicken tikka masala"), use find_and_add_meal with a short descriptive query — the app will search the web and pull the real recipe itself, so never invent ingredients or a link yourself here. If the user pastes actual ingredients or recipe text directly into their message and wants it saved (no link, no search needed), use save_meal_from_message so the app parses exactly what they wrote. If the user shares a lasting preference, restriction, or household fact that isn't already covered above (e.g. "we just found out my son is allergic to peanuts", "we're doing meatless Mondays now") — not a one-off request — use remember_fact with a short, clear statement so it's remembered in future conversations too. If household notes, profile, or learned facts mention a gluten restriction (e.g. celiac), do not add_meal a meal flagged with a gluten warning unless the user explicitly asks for it anyway — mention the concern in your reply instead. For remove_meal, use the exact instanceId shown above. Empty actions array if you're just answering a question.`;
 
   const thinking = addMsg('Daniel is thinking…', 'thinking');
   sendBtn.disabled = true;
   try{
+    const history = state.currentThreadMessages.slice(-30);
+    const messages = [];
+    history.forEach(m=>{
+      const role = m.cls==='user' ? 'user' : 'assistant';
+      if(messages.length && messages[messages.length-1].role===role){
+        messages[messages.length-1].content += '\n\n' + m.text;
+      } else {
+        messages.push({role, content:m.text});
+      }
+    });
     const response = await fetch("/api/daniel", {
       method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1000, system, messages:[{role:"user", content:userText}] })
+      body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:1000, system, messages })
     });
     const data = await response.json();
     const text = (data.content||[]).map(c=>c.text||'').join('').trim();
@@ -1590,6 +1646,8 @@ Rules: date must be a real ISO date (YYYY-MM-DD). Resolve relative day reference
         handleFindAndAddMeal(a.query);
       } else if(a.type==='save_meal_from_message'){
         handleSaveMealFromMessage(userText);
+      } else if(a.type==='remember_fact' && a.fact){
+        if(!state.learnedFacts.includes(a.fact)){ state.learnedFacts.push(a.fact); renderLearnedFacts(); }
       }
     });
     if(lastTouchedDate) state.currentDate = lastTouchedDate;
