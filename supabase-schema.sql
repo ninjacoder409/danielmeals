@@ -4,6 +4,8 @@ create table app_state (
   id text primary key,
   recipes jsonb not null default '[]'::jsonb,
   plan jsonb not null default '{}'::jsonb,
+  suggested_meals jsonb not null default '[]'::jsonb,
+  suggestions_week_of text,
   updated_at timestamptz not null default now()
 );
 

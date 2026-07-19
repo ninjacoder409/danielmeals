@@ -44,8 +44,12 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 .day-arrow{width:34px;height:34px;flex:none;border-radius:50%;border:1px solid var(--line);background:var(--panel);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--ink);}
 .day-arrow:hover{background:var(--brand-soft);color:var(--brand);}
 .day-arrow:disabled{opacity:.3;cursor:default;background:var(--panel);color:var(--ink);}
-.day-strip{display:flex;gap:6px;overflow-x:auto;flex:1;padding:2px;scrollbar-width:thin;}
-.day-pill{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:6px 11px;text-align:center;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink-soft);min-width:42px;}
+.day-strip{display:flex;gap:6px;overflow-x:auto;flex:1;padding:2px;scrollbar-width:thin;scroll-snap-type:x proximity;}
+.day-today-btn{flex:none;padding:8px 12px;font-size:12px;}
+.day-jump-btn{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--panel);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;}
+.day-jump-btn:hover{background:var(--brand-soft);}
+.date-jump-input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;}
+.day-pill{flex:none;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:6px 11px;text-align:center;cursor:pointer;font-family:'Inter',sans-serif;color:var(--ink-soft);min-width:42px;scroll-snap-align:center;}
 .day-pill .dp-wd{font-weight:700;font-size:9.5px;display:block;letter-spacing:.03em;text-transform:uppercase;}
 .day-pill .dp-num{font-family:'IBM Plex Mono',monospace;font-size:13px;display:block;margin-top:2px;color:var(--ink);}
 .day-pill.active{background:var(--brand);border-color:var(--brand);}
@@ -113,7 +117,22 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 .gf-warn{margin-top:6px;font-size:10.5px;color:var(--warn);background:var(--warn-bg);padding:4px 7px;border-radius:6px;display:inline-block;}
 
 /* saved meals tab */
-.meals-layout{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start;}
+.meals-section{margin-bottom:26px;}
+.meals-section-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;margin-bottom:10px;}
+.meals-section-title-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.suggest-refresh-note{font-family:'Inter',sans-serif;font-size:10.5px;font-weight:500;color:var(--ink-soft);margin-left:8px;text-transform:none;letter-spacing:0;}
+.suggested-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;}
+.suggested-card{background:var(--bg);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.suggested-card .sc-img{width:100%;height:110px;object-fit:cover;display:block;background:var(--line);}
+.suggested-card .sc-img-placeholder{width:100%;height:110px;background:linear-gradient(135deg,var(--brand-soft),var(--bg));display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--brand);}
+.suggested-card .sc-body{padding:10px 11px;}
+.suggested-card .sc-name{font-weight:600;font-size:12.5px;}
+.suggested-card .sc-reason{font-size:11px;color:var(--ink-soft);margin-top:5px;line-height:1.4;}
+.suggested-card .sc-actions{display:flex;gap:6px;margin-top:10px;}
+.suggested-card .sc-actions a,.suggested-card .sc-actions button{font-size:11px;padding:6px 9px;border-radius:6px;border:1px solid var(--line);background:var(--panel);cursor:pointer;text-decoration:none;color:var(--ink);font-family:'Inter',sans-serif;}
+.suggested-card .sc-add{background:var(--brand);color:#fff;border-color:var(--brand);}
+.suggested-card .sc-add:disabled{opacity:.6;}
+.suggested-card .sc-status{font-size:10.5px;color:var(--warn);margin-top:6px;line-height:1.4;}
 .meals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
 .recipe-card{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 10px;cursor:grab;}
 .recipe-card:active{cursor:grabbing;}
@@ -121,7 +140,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 .rc-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
 .rc-link{display:inline-block;margin-top:5px;font-size:11px;color:var(--brand);text-decoration:none;}
 .rc-link.muted{color:var(--ink-soft);}
-.add-recipe{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;}
+.add-recipe{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px;max-width:420px;}
 .ar-title{font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;color:var(--ink-soft);margin-bottom:8px;}
 .add-recipe input,.add-recipe textarea{width:100%;font-size:12px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:7px;padding:7px 9px;margin-bottom:7px;background:var(--bg);color:var(--ink);}
 .add-recipe textarea{min-height:56px;resize:vertical;}
@@ -131,7 +150,6 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 .add-recipe button{width:100%;border:none;background:var(--brand);color:#fff;padding:9px;border-radius:8px;font-weight:600;font-size:12.5px;cursor:pointer;font-family:'Inter',sans-serif;}
 .add-recipe button:disabled{opacity:.5;}
 .ar-status{font-size:11.5px;margin-top:7px;color:var(--ink-soft);}
-@media(max-width:800px){ .meals-layout{grid-template-columns:1fr;} }
 
 /* floating chat widget */
 .chat-fab{position:fixed;bottom:22px;right:22px;display:flex;align-items:center;gap:9px;background:var(--brand);color:#fff;border:none;border-radius:999px;padding:10px 18px 10px 10px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.22);z-index:90;font-family:'Inter',sans-serif;font-weight:700;font-size:13.5px;}
@@ -206,13 +224,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
   <div class="topbar">
     <div class="brand">
       <div class="brand-mark"></div>
-      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping · v1.3</p></div>
+      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping · v1.5</p></div>
     </div>
     <div class="maintabs">
       <button class="maintab active" data-main="plan">Plan</button>
       <button class="maintab" data-main="ingredients">Ingredients</button>
       <button class="maintab" data-main="shopping">Shopping List</button>
-      <button class="maintab" data-main="meals">Saved Meals</button>
+      <button class="maintab" data-main="meals">Meals</button>
     </div>
   </div>
 
@@ -227,6 +245,9 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
       <button class="day-arrow" id="prevDayBtn" aria-label="Previous day">‹</button>
       <div class="day-strip" id="dayStrip"></div>
       <button class="day-arrow" id="nextDayBtn" aria-label="Next day">›</button>
+      <button class="ghost-btn day-today-btn" id="todayBtn" title="Jump to today">Today</button>
+      <button class="day-jump-btn" id="dateJumpBtn" title="Jump to a specific date">📅</button>
+      <input type="date" id="dateJumpInput" class="date-jump-input">
     </div>
     <div class="day-card-wrap" id="dayCardWrap">
       <div class="day-card" id="dayCard"></div>
@@ -246,11 +267,24 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
   </div>
 
   <div class="mainpanel" id="panel-meals">
-    <h2 class="page-title">Saved Meals</h2>
-    <div class="meals-layout">
+    <h2 class="page-title">Meals</h2>
+
+    <div class="meals-section">
+      <div class="meals-section-title">Saved Meals</div>
       <div class="meals-grid" id="libList"></div>
+    </div>
+
+    <div class="meals-section">
+      <div class="meals-section-title-row">
+        <div class="meals-section-title">Suggested Meals <span class="suggest-refresh-note">refreshes every Friday</span></div>
+        <button class="ghost-btn" id="refreshSuggestBtn">Refresh now</button>
+      </div>
+      <div class="suggested-grid" id="suggestedList"></div>
+    </div>
+
+    <div class="meals-section">
+      <div class="meals-section-title">Add a Meal</div>
       <div class="add-recipe">
-        <div class="ar-title">Add a meal</div>
         <input id="arName" placeholder="Name (optional)">
         <input id="arLink" placeholder="Recipe URL (optional)">
         <input id="arServings" type="number" min="1" placeholder="Servings (default 6)">
@@ -287,8 +321,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
           <div class="chat-greeting">Hi, how can I help you today?</div>
           <div class="chat-suggest-label">Suggestions:</div>
           <button type="button" class="chat-suggest" data-q="What's on my plan this week?">What's on my plan this week?</button>
+          <button type="button" class="chat-suggest" data-q="Find me a good chicken tikka masala recipe and add it to my saved meals">Find a recipe and save it for me</button>
           <button type="button" class="chat-suggest" data-q="What's missing from my shopping list?">What's missing from my shopping list?</button>
-          <button type="button" class="chat-suggest" data-q="Suggest a dinner for tonight">Suggest a dinner for tonight</button>
         </div>
       </div>
       <div class="chat-view" id="view-log"><div class="chat-log" id="chatLog"></div></div>
@@ -415,9 +449,9 @@ const SEED_RECIPES = [
     {name:'rice', qty:2, unit:'cup', category:'pantry'},
     {name:'shredded cheddar', qty:1.5, unit:'cup', category:'dairy'},
     {name:'lime', qty:3, unit:'count', category:'produce'},
-    {name:'chili powder', qty:1.5, unit:'oz', category:'pantry'},
-    {name:'cumin', qty:0.75, unit:'oz', category:'pantry'},
-    {name:'olive oil', qty:3, unit:'oz', category:'pantry'},
+    {name:'chili powder', qty:1, unit:'item', category:'pantry'},
+    {name:'cumin', qty:1, unit:'item', category:'pantry'},
+    {name:'olive oil', qty:1, unit:'item', category:'pantry'},
   ]},
   {id:uid(), name:'Veggie Pasta Primavera', link:null, servings:6, ingredients:[
     {name:'pasta', qty:18, unit:'oz', category:'pantry'},
@@ -426,26 +460,26 @@ const SEED_RECIPES = [
     {name:'parmesan cheese', qty:0.75, unit:'cup', category:'dairy'},
     {name:'butter', qty:1.5, unit:'stick', category:'dairy'},
     {name:'garlic', qty:3, unit:'count', category:'produce'},
-    {name:'olive oil', qty:3, unit:'oz', category:'pantry'},
-    {name:'basil', qty:0.5, unit:'oz', category:'pantry'},
+    {name:'olive oil', qty:1, unit:'item', category:'pantry'},
+    {name:'basil', qty:1, unit:'item', category:'pantry'},
   ]},
   {id:uid(), name:'Greek Yogurt Parfait', link:null, servings:6, ingredients:[
     {name:'greek yogurt', qty:6, unit:'cup', category:'dairy'},
     {name:'granola', qty:3, unit:'cup', category:'pantry'},
     {name:'mixed berries', qty:4.5, unit:'cup', category:'produce'},
-    {name:'honey', qty:2, unit:'oz', category:'pantry'},
+    {name:'honey', qty:1, unit:'item', category:'pantry'},
   ]},
   {id:uid(), name:'Sausage & Peppers', link:null, servings:6, ingredients:[
     {name:'sausage links', qty:2, unit:'lb', category:'meat'},
     {name:'bell pepper', qty:3, unit:'count', category:'produce'},
     {name:'onion', qty:2, unit:'count', category:'produce'},
-    {name:'olive oil', qty:2, unit:'oz', category:'pantry'},
+    {name:'olive oil', qty:1, unit:'item', category:'pantry'},
   ]},
   {id:uid(), name:'Oatmeal with Berries', link:null, servings:6, ingredients:[
     {name:'rolled oats', qty:3, unit:'cup', category:'pantry'},
     {name:'milk', qty:0.1875, unit:'gal', category:'dairy'},
     {name:'mixed berries', qty:3, unit:'cup', category:'produce'},
-    {name:'honey', qty:1.5, unit:'oz', category:'pantry'},
+    {name:'honey', qty:1, unit:'item', category:'pantry'},
   ]},
 ];
 
@@ -484,6 +518,8 @@ const state = {
   profileSummary: '',
   chatThreads: [],
   currentThreadMessages: [],
+  suggestedMeals: [],       // [{id,name,link,reason,imageUrl}]
+  suggestionsWeekOf: null,  // ISO date of the Friday these suggestions belong to
 };
 function getDaySlots(dateStr){
   if(!state.plan[dateStr]) state.plan[dateStr] = Object.fromEntries(SLOTS.map(s=>[s,[]]));
@@ -516,6 +552,8 @@ function persistState(){
         id: HOUSEHOLD_ID,
         recipes: state.recipes,
         plan: state.plan,
+        suggested_meals: state.suggestedMeals,
+        suggestions_week_of: state.suggestionsWeekOf,
         updated_at: new Date().toISOString(),
       });
     }catch(err){ console.error('Save to Supabase failed:', err); }
@@ -527,14 +565,17 @@ async function loadState(){
     // No Supabase configured — behave like the old in-memory-only version
     seedDefaults();
     renderAll();
+    maybeRefreshSuggestions();
     return;
   }
   try{
-    const { data, error } = await sb.from('app_state').select('recipes, plan').eq('id', HOUSEHOLD_ID).maybeSingle();
+    const { data, error } = await sb.from('app_state').select('recipes, plan, suggested_meals, suggestions_week_of').eq('id', HOUSEHOLD_ID).maybeSingle();
     if(error) throw error;
     if(data && data.recipes && data.recipes.length){
       state.recipes = data.recipes;
       state.plan = data.plan || {};
+      state.suggestedMeals = data.suggested_meals || [];
+      state.suggestionsWeekOf = data.suggestions_week_of || null;
     } else {
       // first run for this household — seed starter data and save it
       seedDefaults();
@@ -545,6 +586,7 @@ async function loadState(){
     seedDefaults();
   }
   renderAll();
+  maybeRefreshSuggestions();
 }
 
 /* ================= helpers ================= */
@@ -567,8 +609,8 @@ function computeWeeklyNeeds(){
         const factor = inst.people / (recipe.servings||DEFAULT_SERVINGS);
         recipe.ingredients.forEach(ing=>{
           const key = stockKey(ing.name, ing.unit);
-          if(!needs[key]) needs[key] = {name:ing.name, unit:ing.unit, category:ing.category, needed:0};
-          needs[key].needed += ing.qty*factor;
+          if(!needs[key]) needs[key] = {name:ing.name, unit:ing.unit, category:ing.category, needed:0, noQty: ing.unit==='item'};
+          if(ing.unit!=='item') needs[key].needed += ing.qty*factor;
         });
       });
     });
@@ -723,6 +765,14 @@ function goToDay(dateStr){
 }
 document.getElementById('prevDayBtn').addEventListener('click', ()=> goToDay(addDays(state.currentDate,-1)));
 document.getElementById('nextDayBtn').addEventListener('click', ()=> goToDay(addDays(state.currentDate,1)));
+document.getElementById('todayBtn').addEventListener('click', ()=> goToDay(todayStr()));
+const dateJumpInput = document.getElementById('dateJumpInput');
+document.getElementById('dateJumpBtn').addEventListener('click', ()=>{
+  dateJumpInput.value = state.currentDate;
+  if(dateJumpInput.showPicker) dateJumpInput.showPicker();
+  else dateJumpInput.focus();
+});
+dateJumpInput.addEventListener('change', e=>{ if(e.target.value) goToDay(e.target.value); });
 
 // swipe support
 const dayCardWrap = document.getElementById('dayCardWrap');
@@ -752,11 +802,26 @@ function renderIngredients(){
     section.innerHTML = `<div class="ing-cat-title" style="color:${CAT_COLOR[cat]}">${cat}</div>`;
     items.forEach(([key,v])=>{
       const stock = ensureStock(key);
-      const info = UNIT_INFO[v.unit];
+      const info = v.noQty ? null : UNIT_INFO[v.unit];
       const row=document.createElement('div'); row.className='ing-row';
       const nameDiv=document.createElement('div'); nameDiv.className='ing-name'; nameDiv.textContent=v.name;
-      const neededDiv=document.createElement('div'); neededDiv.className='ing-needed'; neededDiv.textContent=`${fmt(v.needed)} ${info.label} needed`;
+      const neededDiv=document.createElement('div'); neededDiv.className='ing-needed';
+      neededDiv.textContent = v.noQty ? 'kitchen staple' : `${fmt(v.needed)} ${info.label} needed`;
       const controlDiv=document.createElement('div');
+      if(v.noQty){
+        // no quantity concept for staples like salt/pepper/oils — status only, no Quantify toggle
+        const wrap=document.createElement('div'); wrap.className='tri-btns';
+        [['in','In stock'],['low','Running low'],['out','Out']].forEach(([v2,text])=>{
+          const b=document.createElement('button'); b.type='button'; b.textContent=text;
+          if(stock.status===v2) b.classList.add('active');
+          b.addEventListener('click', ()=>{ stock.status=v2; wrap.querySelectorAll('button').forEach(x=>x.classList.remove('active')); b.classList.add('active'); renderShopping(); });
+          wrap.appendChild(b);
+        });
+        controlDiv.appendChild(wrap);
+        row.append(nameDiv, neededDiv, controlDiv);
+        section.appendChild(row);
+        return;
+      }
       const toggleLabel=document.createElement('label'); toggleLabel.className='qty-toggle';
       const toggleInput=document.createElement('input'); toggleInput.type='checkbox'; toggleInput.checked = stock.mode==='quantity';
       const toggleSpan=document.createElement('span'); toggleSpan.textContent='Quantify';
@@ -792,6 +857,11 @@ function renderShopping(){
   const rows = [];
   Object.entries(needs).forEach(([key,v])=>{
     const stock = ensureStock(key);
+    if(v.noQty){
+      if(stock.status==='in') return;
+      rows.push({key, name:v.name, category:v.category, unit:'item', tag: stock.status==='low' ? 'running low' : 'out'});
+      return;
+    }
     let base = 0, tag = null;
     if(stock.mode==='quantity'){
       base = normalizeBuyQty(Math.max(0, v.needed - stock.have), v.unit);
@@ -817,16 +887,19 @@ function renderShopping(){
       const cb=document.createElement('input'); cb.type='checkbox';
       const nameSpan=document.createElement('span'); nameSpan.innerHTML = `${it.name}${it.tag ? ` <em>(${it.tag})</em>` : ''}`;
       left.append(cb, nameSpan);
-      const inc = BUY_INCREMENT[it.unit];
-      const stepper = buildStepper(state.shopBuyQty[it.key], 0, inc*20, inc, v=>{ state.shopBuyQty[it.key]=v; }, UNIT_INFO[it.unit].label);
-      row.append(left, stepper);
+      row.appendChild(left);
+      if(it.unit!=='item'){
+        const inc = BUY_INCREMENT[it.unit];
+        const stepper = buildStepper(state.shopBuyQty[it.key], 0, inc*20, inc, v=>{ state.shopBuyQty[it.key]=v; }, UNIT_INFO[it.unit].label);
+        row.appendChild(stepper);
+      }
       section.appendChild(row);
     });
     el.appendChild(section);
   });
   const copyBtn=document.createElement('button'); copyBtn.className='copy-btn'; copyBtn.textContent='Copy list';
   copyBtn.onclick = ()=>{
-    const text = rows.map(r=>`${r.name} — ${fmt(state.shopBuyQty[r.key])} ${UNIT_INFO[r.unit].label}`).join('\n');
+    const text = rows.map(r=> r.unit==='item' ? r.name : `${r.name} — ${fmt(state.shopBuyQty[r.key])} ${UNIT_INFO[r.unit].label}`).join('\n');
     navigator.clipboard?.writeText(text).catch(()=>{});
   };
   el.appendChild(copyBtn);
@@ -850,6 +923,107 @@ function renderSavedRecipes(){
 }
 
 function renderAll(){ renderDayCard(); renderDayStrip(); renderIngredients(); renderShopping(); persistState(); renderSavedRecipes(); updateWeekButtons(); }
+
+/* ================= weekly suggested meals ================= */
+function fridayAnchor(dateStr){
+  const d = new Date(dateStr+'T00:00:00');
+  const dow = d.getDay(); // 0 Sun..6 Sat, Friday=5
+  const diff = dow>=5 ? dow-5 : dow+2;
+  d.setDate(d.getDate()-diff);
+  return isoDate(d);
+}
+function maybeRefreshSuggestions(){
+  if(state.suggestionsWeekOf !== fridayAnchor(todayStr())) generateWeeklySuggestions();
+  else renderSuggestedMeals();
+}
+async function generateWeeklySuggestions(){
+  renderSuggestedMeals(true); // show loading state
+  try{
+    const mealsList = state.recipes.map(r=>r.name).join(', ') || '(none saved yet)';
+    const prompt = `Search the web and recommend exactly 3 real, currently-live recipes this household would likely enjoy, that they don't already have saved. Never invent a URL — only use links you actually find via search.
+Household notes: ${notesBox ? notesBox.value : '(none)'}
+Household profile: ${state.profileSummary || '(quiz not completed yet)'}
+Already-saved meals (avoid close duplicates of these): ${mealsList}
+Respond with ONLY JSON, no markdown fences: {"suggestions":[{"name":string,"link":string,"reason":string}]} — exactly 3 items, reason is one short sentence on why it fits this household.`;
+    const res = await fetch('/api/daniel', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:1200, useWebSearch:true, messages:[{role:'user', content:prompt}] })
+    });
+    const data = await res.json();
+    const text = (data.content||[]).filter(c=>c.type==='text').map(c=>c.text||'').join('').trim();
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    const suggestions = (parsed.suggestions||[]).slice(0,3).map(s=>({id:uid(), name:s.name, link:s.link, reason:s.reason||'', imageUrl:null}));
+    state.suggestedMeals = suggestions;
+    state.suggestionsWeekOf = fridayAnchor(todayStr());
+    renderSuggestedMeals();
+    persistState();
+    // fetch a thumbnail per suggestion in the background — a miss just means no image, not a failure
+    suggestions.forEach(async s=>{
+      if(!s.link) return;
+      try{
+        const r = await fetch('/api/daniel', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({mode:'og_image', url:s.link}) });
+        const j = await r.json();
+        if(j.ogImage){ s.imageUrl = j.ogImage; renderSuggestedMeals(); persistState(); }
+      }catch(e){}
+    });
+  }catch(err){
+    console.error('Suggestion generation failed', err);
+    const el = document.getElementById('suggestedList');
+    if(el) el.innerHTML = '<div class="empty">Could not fetch suggestions right now — try "Refresh now" again in a moment.</div>';
+  }
+}
+function renderSuggestedMeals(loading){
+  const el = document.getElementById('suggestedList');
+  if(!el) return;
+  if(loading){ el.innerHTML = '<div class="empty">Finding fresh ideas for you…</div>'; return; }
+  if(!state.suggestedMeals.length){ el.innerHTML = '<div class="empty">No suggestions yet — click "Refresh now."</div>'; return; }
+  el.innerHTML='';
+  state.suggestedMeals.forEach(s=>{
+    const card=document.createElement('div'); card.className='suggested-card';
+    if(s.imageUrl){
+      const img=document.createElement('img'); img.className='sc-img'; img.src=s.imageUrl; img.alt=s.name; img.loading='lazy';
+      img.onerror = ()=>{ img.remove(); card.querySelector('.sc-body').insertAdjacentHTML('beforebegin','<div class="sc-img-placeholder">🍽️</div>'); };
+      card.appendChild(img);
+    } else {
+      card.innerHTML = '<div class="sc-img-placeholder">🍽️</div>';
+    }
+    const body=document.createElement('div'); body.className='sc-body';
+    body.innerHTML = `<div class="sc-name">${s.name}</div><div class="sc-reason">${s.reason}</div>`;
+    const actions=document.createElement('div'); actions.className='sc-actions';
+    if(s.link){
+      const link=document.createElement('a'); link.href=s.link; link.target='_blank'; link.rel='noopener'; link.textContent='View recipe ↗';
+      actions.appendChild(link);
+    }
+    const addBtn=document.createElement('button'); addBtn.type='button'; addBtn.className='sc-add'; addBtn.textContent='Add to Saved Meals';
+    const statusDiv=document.createElement('div'); statusDiv.className='sc-status';
+    addBtn.addEventListener('click', async ()=>{
+      addBtn.disabled = true; addBtn.textContent='Adding…'; statusDiv.textContent='';
+      try{
+        const parsed = await ingestRecipe({ name:s.name, link:s.link });
+        if(parsed.error){
+          addBtn.disabled = false; addBtn.textContent = 'Add to Saved Meals';
+          statusDiv.textContent = `Couldn't pull full ingredients: ${parsed.error}`;
+        } else {
+          state.recipes.push({id:uid(), name:parsed.name||s.name, link:parsed.link||s.link, servings:parsed.servings||DEFAULT_SERVINGS, ingredients:parsed.ingredients||[]});
+          renderSavedRecipes(); persistState();
+          addBtn.textContent='Added ✓';
+        }
+      }catch(err){
+        addBtn.disabled = false; addBtn.textContent = 'Add to Saved Meals';
+        statusDiv.textContent = 'Something went wrong — try again?';
+        console.error(err);
+      }
+    });
+    actions.appendChild(addBtn);
+    body.appendChild(actions);
+    body.appendChild(statusDiv);
+    card.appendChild(body);
+    el.appendChild(card);
+  });
+}
+document.getElementById('refreshSuggestBtn').addEventListener('click', generateWeeklySuggestions);
+
 function hasPriorWeekData(){
   const thisMonday = mondayOf(todayStr());
   const lastMonday = addDays(thisMonday, -7);
@@ -890,9 +1064,10 @@ document.querySelectorAll('.maintab').forEach(t=> t.addEventListener('click', ()
 /* ================= recipe ingestion (link / paste / photo) ================= */
 async function ingestRecipe({name, link, servingsHint, rawText, imageBase64}){
   let promptText = `Extract a structured recipe from the information below. Respond with ONLY JSON, no markdown fences.
-Schema: {"name": string, "link": string|null, "servings": number, "ingredients":[{"name":string,"qty":number,"unit":"gal"|"stick"|"cup"|"lb"|"oz"|"count","category":"produce"|"dairy"|"meat"|"pantry"}], "error": string|null}
+Schema: {"name": string, "link": string|null, "servings": number, "ingredients":[{"name":string,"qty":number,"unit":"gal"|"stick"|"cup"|"lb"|"oz"|"count"|"item","category":"produce"|"dairy"|"meat"|"pantry"}], "error": string|null}
 Rules:
-- For every ingredient, choose whichever of the six units (gal, stick, cup, lb, oz, count) is most practical for how that ingredient is actually measured and tracked, even if that means converting from how the source recipe wrote it. Examples: milk → gal, butter → stick, flour/rice/dry goods → cup or oz, meat → lb, produce/eggs → count, spices/oils/condiments → oz.
+- For most ingredients, choose whichever unit (gal, stick, cup, lb, oz, count) is most practical for how it's actually measured and tracked, even if that means converting from how the source recipe wrote it. Examples: milk → gal, butter → stick, flour/rice/dry goods → cup or oz, meat → lb, produce/eggs → count.
+- Use "item" (qty can just be 1) for salt, pepper, common ground spices/seasonings, dried herbs, baking soda/powder, vanilla extract, cooking spray, oils, vinegars, and other staples where a specific purchase quantity doesn't make sense to compute — these should just be tracked as "do we have it" rather than "how much do we need," since nobody buys "1 oz of salt."
 - IMPORTANT: convert the recipe's stated amount into that practical unit (e.g. "1 cup milk" becomes qty 0.0625, unit "gal").
 - category is for grouping only: produce, dairy, meat, or pantry.
 - If there isn't enough real information here to extract actual ingredients, set "error" to a short plain-language explanation and leave ingredients as an empty array. Do not invent a recipe you don't have real information for.
@@ -1046,6 +1221,61 @@ function addMsg(text, cls){
   chatLog.appendChild(div); chatLog.scrollTop = chatLog.scrollHeight; return div;
 }
 
+async function handleFindAndAddMeal(query){
+  const thinking = addMsg(`Searching for a recipe for "${query}"…`, 'thinking');
+  try{
+    const res = await fetch('/api/daniel', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:600, useWebSearch:true,
+        messages:[{role:'user', content:`Search the web to find one real, currently-live recipe matching this request: "${query}". Respond with ONLY JSON, no markdown fences: {"name":string|null,"link":string|null,"error":string|null}. link must be a real URL from your search results — never invent one. If you can't find a good match, leave name/link null and set error to a short explanation.`}]
+      })
+    });
+    const data = await res.json();
+    const text = (data.content||[]).filter(c=>c.type==='text').map(c=>c.text||'').join('').trim();
+    const clean = text.replace(/```json|```/g,'').trim();
+    const found = JSON.parse(clean);
+    thinking.remove();
+    if(found.error || !found.link){
+      addMsg(`I couldn't find a solid match for "${query}"${found.error ? ': '+found.error : ''}. Want to paste a link or the ingredients yourself instead?`, 'daniel');
+      return;
+    }
+    const readingMsg = addMsg(`Found "${found.name}" — pulling the ingredients now…`, 'thinking');
+    const parsed = await ingestRecipe({ name: found.name, link: found.link });
+    readingMsg.remove();
+    if(parsed.error){
+      addMsg(`Found a recipe but couldn't read its ingredients: ${parsed.error}`, 'daniel');
+    } else {
+      state.recipes.push({id:uid(), name:parsed.name||found.name, link:parsed.link||found.link, servings:parsed.servings||DEFAULT_SERVINGS, ingredients:parsed.ingredients||[]});
+      renderSavedRecipes(); persistState();
+      addMsg(`Added "${parsed.name||found.name}" to your Saved Meals — serves ${parsed.servings||DEFAULT_SERVINGS}, ${(parsed.ingredients||[]).length} ingredients.`, 'daniel');
+    }
+  }catch(err){
+    thinking.remove();
+    addMsg("Something went wrong searching for that — mind trying again?", 'daniel');
+    console.error(err);
+  }
+}
+
+async function handleSaveMealFromMessage(rawText){
+  const thinking = addMsg('Reading that recipe…', 'thinking');
+  try{
+    const parsed = await ingestRecipe({ rawText });
+    thinking.remove();
+    if(parsed.error){
+      addMsg(`I couldn't pull a full recipe from that: ${parsed.error}`, 'daniel');
+    } else {
+      state.recipes.push({id:uid(), name:parsed.name||'Untitled meal', link:parsed.link||null, servings:parsed.servings||DEFAULT_SERVINGS, ingredients:parsed.ingredients||[]});
+      renderSavedRecipes(); persistState();
+      addMsg(`Added "${parsed.name}" to your Saved Meals — serves ${parsed.servings||DEFAULT_SERVINGS}, ${(parsed.ingredients||[]).length} ingredients.`, 'daniel');
+    }
+  }catch(err){
+    thinking.remove();
+    addMsg("Something went wrong reading that — mind trying again?", 'daniel');
+    console.error(err);
+  }
+}
+
 async function sendToDaniel(userText){
   const today = todayStr();
   const relevantDates = Object.keys(state.plan).filter(d=> SLOTS.some(s=>(state.plan[d][s]||[]).length)).sort();
@@ -1078,8 +1308,8 @@ Household profile (from onboarding quiz): ${state.profileSummary || '(quiz not c
 Currently planned dates (only dates with at least one meal are listed, each entry shows its instance id):
 ${planLines}
 
-Respond ONLY with JSON, no markdown fences: {"reply":"short friendly message, 2-4 sentences max","actions":[{"type":"add_meal","date":"YYYY-MM-DD","slot":"dinner","recipeId":"<id>","people":6},{"type":"quick_add_meal","date":"YYYY-MM-DD","slot":"dinner","name":"Pizza night","people":6},{"type":"remove_meal","date":"YYYY-MM-DD","slot":"dinner","instanceId":"<id>"}]}
-Rules: date must be a real ISO date (YYYY-MM-DD). Resolve relative day references (e.g. "Wednesday", "tomorrow", "next Monday") to an actual date based on today's date above — a bare weekday name means the next upcoming occurrence of that weekday, including today if today is that day. slot must be one of breakfast,lunch,dinner,snack. Use add_meal only with recipeId values from the saved meals list above — never invent a meal there. If the user asks to add something that isn't in Saved Meals and doesn't seem to want ingredient tracking for it (e.g. "add pizza night", "we're ordering out Friday"), use quick_add_meal instead — it has no ingredients, so it won't show up on Ingredients or Shopping List. If they clearly want a real recipe tracked, tell them to add it via a link or photo instead. If household notes or profile mention a gluten restriction (e.g. celiac), do not add_meal a meal flagged with a gluten warning unless the user explicitly asks for it anyway — mention the concern in your reply instead. For remove_meal, use the exact instanceId shown above. Empty actions array if you're just answering a question.`;
+Respond ONLY with JSON, no markdown fences: {"reply":"short friendly message, 2-4 sentences max","actions":[{"type":"add_meal","date":"YYYY-MM-DD","slot":"dinner","recipeId":"<id>","people":6},{"type":"quick_add_meal","date":"YYYY-MM-DD","slot":"dinner","name":"Pizza night","people":6},{"type":"remove_meal","date":"YYYY-MM-DD","slot":"dinner","instanceId":"<id>"},{"type":"find_and_add_meal","query":"chicken tikka masala"},{"type":"save_meal_from_message"}]}
+Rules: date must be a real ISO date (YYYY-MM-DD). Resolve relative day references (e.g. "Wednesday", "tomorrow", "next Monday") to an actual date based on today's date above — a bare weekday name means the next upcoming occurrence of that weekday, including today if today is that day. slot must be one of breakfast,lunch,dinner,snack. Use add_meal only with recipeId values from the saved meals list above — never invent a meal there. If the user asks to add something that isn't in Saved Meals and doesn't seem to want ingredient tracking for it (e.g. "add pizza night", "we're ordering out Friday"), use quick_add_meal instead — it has no ingredients, so it won't show up on Ingredients or Shopping List. If the user asks you to find/discover/search for a specific dish and save it, without giving a link (e.g. "find a good banana bread recipe and add it", "add a recipe for chicken tikka masala"), use find_and_add_meal with a short descriptive query — the app will search the web and pull the real recipe itself, so never invent ingredients or a link yourself here. If the user pastes actual ingredients or recipe text directly into their message and wants it saved (no link, no search needed), use save_meal_from_message so the app parses exactly what they wrote. If household notes or profile mention a gluten restriction (e.g. celiac), do not add_meal a meal flagged with a gluten warning unless the user explicitly asks for it anyway — mention the concern in your reply instead. For remove_meal, use the exact instanceId shown above. Empty actions array if you're just answering a question.`;
 
   const thinking = addMsg('Daniel is thinking…', 'thinking');
   sendBtn.disabled = true;
@@ -1109,6 +1339,10 @@ Rules: date must be a real ISO date (YYYY-MM-DD). Resolve relative day reference
       } else if(a.type==='remove_meal' && validDate && SLOTS.includes(a.slot)){
         getDaySlots(a.date)[a.slot] = getDaySlots(a.date)[a.slot].filter(i=>i.instanceId!==a.instanceId);
         lastTouchedDate = a.date;
+      } else if(a.type==='find_and_add_meal' && a.query){
+        handleFindAndAddMeal(a.query);
+      } else if(a.type==='save_meal_from_message'){
+        handleSaveMealFromMessage(userText);
       }
     });
     if(lastTouchedDate) state.currentDate = lastTouchedDate;
