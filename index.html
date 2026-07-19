@@ -93,6 +93,18 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 .slot-section-label{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
 .slot-modal-footer{padding:14px 18px;border-top:1px solid var(--line);flex-shrink:0;}
 .slot-modal-footer button{width:100%;border:none;background:var(--brand);color:#fff;padding:11px;border-radius:10px;font-weight:600;font-size:13.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+.em-label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:700;margin-bottom:6px;}
+#emName,#emServings,#emLink{width:100%;font-size:13px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:8px;padding:9px 11px;background:var(--bg);color:var(--ink);margin-bottom:12px;}
+.em-ing-header{display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 0.9fr 24px;gap:6px;font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-soft);font-weight:700;padding:0 2px 4px;}
+.em-ing-row{display:grid;grid-template-columns:1.6fr 0.7fr 0.9fr 0.9fr 24px;gap:6px;align-items:center;margin-bottom:6px;}
+.em-ing-row input,.em-ing-row select{width:100%;font-size:12px;font-family:'Inter',sans-serif;border:1px solid var(--line);border-radius:7px;padding:7px 8px;background:var(--bg);color:var(--ink);}
+.em-ing-remove{border:none;background:none;color:var(--ink-soft);cursor:pointer;font-size:15px;line-height:1;}
+.em-ing-remove:hover{color:var(--meat);}
+#emDeleteBtn{background:var(--panel);color:var(--meat);border:1px solid var(--meat);flex:1;width:auto;}
+#emSaveBtn{flex:1;width:auto;}
+.recipe-card-editable{cursor:pointer;}
+.recipe-card-editable:hover{border-color:var(--brand);}
+.rc-edit-hint{font-size:10px;color:var(--ink-soft);margin-top:6px;}
 
 /* autocomplete rows (used inside the slot modal) */
 .ac-row{position:relative;margin-bottom:8px;}
@@ -172,6 +184,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
 .suggested-card .sc-status{font-size:10.5px;color:var(--warn);margin-top:6px;line-height:1.4;}
 .meals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
 .recipe-card{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 10px;cursor:grab;}
+.recipe-card-has-recipe{border-left:3px solid var(--brand);}
+.rc-meta-has-recipe{color:var(--brand);font-weight:600;}
 .recipe-card:active{cursor:grabbing;}
 .rc-name{font-size:12.5px;font-weight:600;}
 .rc-meta{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--ink-soft);margin-top:2px;}
@@ -265,7 +279,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
   <div class="topbar">
     <div class="brand">
       <div class="brand-mark"></div>
-      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping · v1.9.4</p></div>
+      <div class="brand-text"><h1>Daniel</h1><p>Meal plans, ingredients, and shopping · v1.11</p></div>
     </div>
     <div class="maintabs">
       <button class="maintab active" data-main="plan">Plan</button>
@@ -284,7 +298,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
           <button type="button" class="vt-btn" data-view="week">Week</button>
           <button type="button" class="vt-btn" data-view="month">Month</button>
         </div>
-        <button class="ghost-btn" id="prepopulateBtn" disabled>Copy Prior Week</button>
+        <button class="ghost-btn" id="prepopulateBtn" disabled title="Copies the week before whichever week you're currently viewing">Copy Prior Week</button>
       </div>
     </div>
     <div class="day-nav" id="dayNav">
@@ -327,6 +341,33 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:'Inter',sans-ser
       </div>
       <div class="slot-modal-footer">
         <button type="button" id="slotSaveBtn">Add to plan</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="slot-overlay" id="editMealOverlay" hidden>
+    <div class="slot-modal">
+      <div class="chat-modal-header">
+        <div class="chat-modal-title">Edit Meal</div>
+        <button class="cm-icon" id="editMealCloseBtn">✕</button>
+      </div>
+      <div class="slot-modal-body">
+        <label class="em-label">Name</label>
+        <input type="text" id="emName">
+        <label class="em-label">Servings</label>
+        <input type="number" id="emServings" min="1">
+        <label class="em-label">Source link</label>
+        <input type="text" id="emLink" placeholder="https://…">
+        <label class="em-label" style="margin-top:14px;">Ingredients</label>
+        <div class="em-ing-header">
+          <span>Name</span><span>Qty</span><span>Unit</span><span>Category</span><span></span>
+        </div>
+        <div id="emIngredientRows"></div>
+        <button type="button" class="ghost-btn" id="emAddIngredient">+ Add ingredient</button>
+      </div>
+      <div class="slot-modal-footer" style="display:flex;gap:10px;">
+        <button type="button" id="emDeleteBtn">Delete meal</button>
+        <button type="button" id="emSaveBtn">Save changes</button>
       </div>
     </div>
   </div>
@@ -705,6 +746,8 @@ const PHOTO_PLANNER_MEALS = [
     {name:'olive oil', qty:1, unit:'item', category:'pantry'},
     {name:'lemon', qty:1, unit:'count', category:'produce'},
   ]},
+  {name:'Serving Leftovers', servings:6, ingredients:[]},
+  {name:'Eating Out / Order Dinner', servings:6, ingredients:[]},
 ];
 function importPhotoPlannerMeals(){
   let added = 0;
@@ -1247,24 +1290,96 @@ document.getElementById('slotSaveBtn').addEventListener('click', ()=>{
 });
 document.getElementById('slotCloseBtn').addEventListener('click', closeSlotModal);
 
-function buildRecipeCard(r){
+/* ================= edit-meal modal (Saved Meals tab only) ================= */
+const EDIT_UNITS = ['gal','stick','cup','lb','oz','count','item'];
+const EDIT_CATEGORIES = ['produce','dairy','meat','pantry'];
+let editMealCtx = null;
+function buildIngredientEditRow(ing){
+  const row=document.createElement('div'); row.className='em-ing-row';
+  const nameInp=document.createElement('input'); nameInp.type='text'; nameInp.placeholder='Ingredient'; nameInp.value = ing ? ing.name : '';
+  const qtyInp=document.createElement('input'); qtyInp.type='number'; qtyInp.step='0.01'; qtyInp.min='0'; qtyInp.value = ing ? ing.qty : 1;
+  const unitSel=document.createElement('select');
+  EDIT_UNITS.forEach(u=>{ const opt=document.createElement('option'); opt.value=u; opt.textContent=u; if(ing && ing.unit===u) opt.selected=true; unitSel.appendChild(opt); });
+  const catSel=document.createElement('select');
+  EDIT_CATEGORIES.forEach(c=>{ const opt=document.createElement('option'); opt.value=c; opt.textContent=c; if(ing && ing.category===c) opt.selected=true; catSel.appendChild(opt); });
+  const rmBtn=document.createElement('button'); rmBtn.type='button'; rmBtn.className='em-ing-remove'; rmBtn.textContent='×'; rmBtn.title='Remove ingredient';
+  rmBtn.addEventListener('click', ()=> row.remove());
+  row.append(nameInp, qtyInp, unitSel, catSel, rmBtn);
+  return row;
+}
+function openEditMeal(recipeId){
+  const r = state.recipes.find(x=>x.id===recipeId);
+  if(!r) return;
+  editMealCtx = recipeId;
+  document.getElementById('emName').value = r.name;
+  document.getElementById('emServings').value = r.servings;
+  document.getElementById('emLink').value = r.link || '';
+  const rows = document.getElementById('emIngredientRows');
+  rows.innerHTML='';
+  r.ingredients.forEach(ing=> rows.appendChild(buildIngredientEditRow(ing)));
+  document.getElementById('editMealOverlay').hidden = false;
+}
+function closeEditMeal(){ document.getElementById('editMealOverlay').hidden = true; editMealCtx = null; }
+document.getElementById('editMealCloseBtn').addEventListener('click', closeEditMeal);
+document.getElementById('emAddIngredient').addEventListener('click', ()=>{
+  document.getElementById('emIngredientRows').appendChild(buildIngredientEditRow(null));
+});
+document.getElementById('emSaveBtn').addEventListener('click', ()=>{
+  if(!editMealCtx) return;
+  const r = state.recipes.find(x=>x.id===editMealCtx);
+  if(!r) return;
+  const name = document.getElementById('emName').value.trim();
+  r.name = name || r.name;
+  r.servings = parseInt(document.getElementById('emServings').value) || DEFAULT_SERVINGS;
+  r.link = document.getElementById('emLink').value.trim() || null;
+  const ingredients = [];
+  document.querySelectorAll('#emIngredientRows .em-ing-row').forEach(row=>{
+    const inputs = row.querySelectorAll('input');
+    const selects = row.querySelectorAll('select');
+    const ingName = inputs[0].value.trim();
+    if(!ingName) return;
+    const qty = parseFloat(inputs[1].value);
+    ingredients.push({name:ingName, qty:isNaN(qty)?1:qty, unit:selects[0].value, category:selects[1].value});
+  });
+  r.ingredients = ingredients;
+  closeEditMeal();
+  renderAll();
+});
+document.getElementById('emDeleteBtn').addEventListener('click', ()=>{
+  if(!editMealCtx) return;
+  if(!confirm('Delete this saved meal? This cannot be undone.')) return;
+  state.recipes = state.recipes.filter(r=>r.id!==editMealCtx);
+  closeEditMeal();
+  renderAll();
+});
+
+function buildRecipeCard(r, opts={}){
   const flags = glutenFlags(r);
-  const card=document.createElement('div'); card.className='recipe-card'; card.draggable=true; card.dataset.recipeId=r.id;
+  const hasRecipe = r.ingredients.length > 0;
+  const card=document.createElement('div'); card.className='recipe-card'+(hasRecipe?' recipe-card-has-recipe':''); card.dataset.recipeId=r.id;
   card.innerHTML = `
     <div class="rc-name">${r.name}</div>
-    <div class="rc-meta">Serves ${r.servings} · ${r.ingredients.length ? r.ingredients.length + ' ingredients' : 'no ingredients tracked'}</div>
+    <div class="rc-meta${hasRecipe?' rc-meta-has-recipe':''}">Serves ${r.servings} · ${hasRecipe ? r.ingredients.length + ' ingredients' : 'no ingredients tracked'}</div>
     ${r.link ? `<a class="rc-link" href="${r.link}" target="_blank" rel="noopener">View recipe ↗</a>` : `<span class="rc-link muted">No source link</span>`}
-    ${flags.length ? `<div class="gf-warn">⚠ May contain gluten: ${flags.join(', ')}</div>` : ''}`;
-  card.addEventListener('dragstart', e=> e.dataTransfer.setData('text/plain', JSON.stringify({recipeId:r.id})));
+    ${flags.length ? `<div class="gf-warn">⚠ May contain gluten: ${flags.join(', ')}</div>` : ''}
+    ${opts.editable ? `<div class="rc-edit-hint">✎ Tap to edit</div>` : ''}`;
+  if(opts.draggable){
+    card.draggable = true;
+    card.addEventListener('dragstart', e=> e.dataTransfer.setData('text/plain', JSON.stringify({recipeId:r.id})));
+  }
+  if(opts.editable){
+    card.classList.add('recipe-card-editable');
+    card.addEventListener('click', ()=> openEditMeal(r.id));
+    const linkEl = card.querySelector('.rc-link');
+    if(linkEl && linkEl.tagName==='A') linkEl.addEventListener('click', e=> e.stopPropagation());
+  }
   return card;
 }
 function renderSavedRecipes(){
-  ['libList','planLibList'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(!el) return;
-    el.innerHTML='';
-    state.recipes.forEach(r=> el.appendChild(buildRecipeCard(r)));
-  });
+  const mealsListEl = document.getElementById('libList');
+  if(mealsListEl){ mealsListEl.innerHTML=''; state.recipes.forEach(r=> mealsListEl.appendChild(buildRecipeCard(r, {editable:true}))); }
+  const planListEl = document.getElementById('planLibList');
+  if(planListEl){ planListEl.innerHTML=''; state.recipes.forEach(r=> planListEl.appendChild(buildRecipeCard(r, {draggable:true}))); }
 }
 
 function renderAll(){
@@ -1377,21 +1492,21 @@ function renderSuggestedMeals(loading){
 document.getElementById('refreshSuggestBtn').addEventListener('click', generateWeeklySuggestions);
 
 function hasPriorWeekData(){
-  const thisMonday = mondayOf(todayStr());
-  const lastMonday = addDays(thisMonday, -7);
-  for(let i=0;i<7;i++){ const d=addDays(lastMonday,i); if(state.plan[d] && SLOTS.some(s=>(state.plan[d][s]||[]).length)) return true; }
+  const viewedMonday = mondayOf(state.currentDate);
+  const priorMonday = addDays(viewedMonday, -7);
+  for(let i=0;i<7;i++){ const d=addDays(priorMonday,i); if(state.plan[d] && SLOTS.some(s=>(state.plan[d][s]||[]).length)) return true; }
   return false;
 }
 function updateWeekButtons(){ document.getElementById('prepopulateBtn').disabled = !hasPriorWeekData(); }
 
-/* ================= copy prior week (Mon-Sun, aligned by weekday) ================= */
+/* ================= copy prior week (relative to whatever week you're currently viewing, Mon-Sun, aligned by weekday) ================= */
 document.getElementById('prepopulateBtn').addEventListener('click', ()=>{
-  const thisMonday = mondayOf(todayStr());
-  const lastMonday = addDays(thisMonday, -7);
+  const viewedMonday = mondayOf(state.currentDate);
+  const priorMonday = addDays(viewedMonday, -7);
   let copied = 0;
   for(let i=0;i<7;i++){
-    const src = addDays(lastMonday, i);
-    const tgt = addDays(thisMonday, i);
+    const src = addDays(priorMonday, i);
+    const tgt = addDays(viewedMonday, i);
     const srcSlots = state.plan[src];
     if(!srcSlots) continue;
     const tgtSlots = getDaySlots(tgt);
@@ -1399,7 +1514,7 @@ document.getElementById('prepopulateBtn').addEventListener('click', ()=>{
       (srcSlots[slot]||[]).forEach(inst=>{ tgtSlots[slot].push({...inst, instanceId:uid()}); copied++; });
     });
   }
-  if(copied) goToDay(thisMonday);
+  if(copied) goToDay(viewedMonday);
   renderAll();
 });
 
