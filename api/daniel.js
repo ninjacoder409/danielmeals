@@ -8,6 +8,27 @@ module.exports = async (req, res) => {
     return;
   }
 
+  const body = req.body || {};
+
+  // Lightweight mode: just grab a page's og:image, no Claude call involved.
+  // Used to get a small thumbnail for Daniel's suggested-meal cards.
+  if (body.mode === 'og_image' && body.url) {
+    try {
+      const pageRes = await fetch(body.url, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.9' },
+        redirect: 'follow',
+      });
+      if (!pageRes.ok) { res.status(200).json({ ogImage: null }); return; }
+      const html = await pageRes.text();
+      const m = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+             || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+      res.status(200).json({ ogImage: m ? m[1] : null });
+    } catch (err) {
+      res.status(200).json({ ogImage: null });
+    }
+    return;
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     res.status(500).json({ error: 'Server is missing ANTHROPIC_API_KEY. Add it in your Vercel project settings under Environment Variables.' });
@@ -15,7 +36,6 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const body = req.body || {};
     let messages = body.messages;
 
     // Optional server-side page fetch — avoids the browser CORS restrictions
@@ -25,7 +45,7 @@ module.exports = async (req, res) => {
       let fetchNote = '';
       try {
         const pageRes = await fetch(body.fetchUrl, {
-          headers: { 'User-Agent': 'Mozilla/5.0 (compatible; DanielMealPlanner/1.0; +https://vercel.com)' },
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36', 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8', 'Accept-Language': 'en-US,en;q=0.9' },
           redirect: 'follow',
         });
         if (pageRes.ok) {
@@ -37,7 +57,9 @@ module.exports = async (req, res) => {
             .replace(/\s+/g, ' ')
             .slice(0, 8000);
         } else {
-          fetchNote = `The page responded with status ${pageRes.status} when fetched from the server.`;
+          fetchNote = [401,402,403,429].includes(pageRes.status)
+            ? `The site returned status ${pageRes.status}, which on most sites means it detected and blocked this as automated traffic — not a real login or subscription requirement on the recipe itself.`
+            : `The page responded with status ${pageRes.status} when fetched from the server.`;
         }
       } catch (fetchErr) {
         fetchNote = 'The server could not retrieve that page either — it may require a login, block automated requests entirely, or the URL may be invalid.';
@@ -64,6 +86,7 @@ module.exports = async (req, res) => {
       messages,
     };
     if (body.system) payload.system = body.system;
+    if (body.useWebSearch) payload.tools = [{ type: 'web_search_20250305', name: 'web_search' }];
 
     const upstream = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
